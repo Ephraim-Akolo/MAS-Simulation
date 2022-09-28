@@ -3,7 +3,7 @@ import json
 
 class MyParser:
     '''
-    Parses config file.
+    Parses the config file.
     '''
     def __init__(self, file_loc="./config.json") -> None:
         with open(file_loc, 'r') as fp:
