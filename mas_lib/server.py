@@ -34,8 +34,8 @@ def _connect_to_network(conn, address):
                 CONNECTIONS[address[0]].remove(conn)
             break
         n = sum([len(val) for val in CONNECTIONS.values()])
-        print("from " + str(data), f" *(broadcasting to {n-1} out of {n} connections in network!)")
-        for connection in CONNECTIONS.values():
+        print("from " + str(data).strip(":"), f" *(broadcasting to {n-1} out of {n} connections in network!)")
+        for addr, connection in CONNECTIONS.items():
             for c in connection:
                 if c == conn:
                     continue
@@ -43,6 +43,9 @@ def _connect_to_network(conn, address):
                     c.send(data.encode())
                 except:
                     print("failed to send to connection:", c)
+                    CONNECTIONS[addr].remove(c)
+                    if len(CONNECTIONS[addr]) < 1:
+                        CONNECTIONS.pop(addr)
     conn.close()
 
 
