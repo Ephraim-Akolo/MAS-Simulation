@@ -5,9 +5,13 @@ class MyParser:
     '''
     Parses the config file.
     '''
+    _model = {}
+
     def __init__(self, file_loc="./config.json") -> None:
         with open(file_loc, 'r') as fp:
-            self._model = json.load(fp)
+            _model = json.load(fp)
+            for key, value in _model.items():
+                self._model[key] = value
 
     @staticmethod
     def _print_model(model):
@@ -26,14 +30,14 @@ class MyParser:
         model = self._model["SystemModel"]
         MyParser._print_model(model)
 
-    @staticmethod
-    def _get_neighbors(model:dict, id:str, prev_key:dict) -> list:
+    @classmethod
+    def _get_neighbors(cls, model:dict, id:str, prev_key:dict) -> list:
         if not len(model):
             return
         keys = list(model.keys())
         if id not in keys:
             for key in keys:
-                neigbors = MyParser._get_neighbors(model[key], id, key)
+                neigbors = cls._get_neighbors(model[key], id, key)
                 if neigbors:
                     return neigbors
         else:
@@ -41,16 +45,17 @@ class MyParser:
                 return [prev_key] + list(model[id].keys())
             return list(model[id].keys())
 
-    def get_neighbors(self, id:str) -> list:
+    @classmethod
+    def get_neighbors(cls, id:str) -> list:
         '''
         returns the surrounding neighbors of `id` in the `model`.
         '''
-        model = self._model
-        return MyParser._get_neighbors(model, id, None)
+        model = cls._model
+        return cls._get_neighbors(model, id, None)
         
 
 
 
 if __name__ == "__main__":
-    #MyParser().print_model()
+    MyParser().print_model()
     print(MyParser().get_neighbors('B7'))
