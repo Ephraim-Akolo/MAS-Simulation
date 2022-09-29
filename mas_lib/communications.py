@@ -27,7 +27,7 @@ class ComBase:
         return True
     
     def broadcast_message(self, message:str):
-        return self._server_socket.send((":"+self.name+":"+message+":").encode())  # send message
+        return self._server_socket.send((":"+self.name+":"+message).encode())  # send message
 
     def _recieve_broadcast(self):
         data, name_msg = "", ""
