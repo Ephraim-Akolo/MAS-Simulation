@@ -5,10 +5,13 @@ from time import sleep
 
 class ComBase:
 
-    def __init__(self, name, host = socket.gethostname(), port = 10001 ) -> None:
+    def __init__(self, name, host="", port = 10001 ) -> None:
         self._server_socket = socket.socket()  # instantiate
         self.name = name
-        self.host = host
+        if host == "":
+            self.host = socket.gethostname()
+        else:
+            self.host = host
         self.port = port
         while not self._connect_to_network():
            print(name, " failed to connect!!!")
@@ -68,10 +71,10 @@ if __name__ == "__main__":
     ComBase("agent1")
     b = ComBase("agent2")
     a = ComBase("agent3")
-    a.broadcast_message("hi to me")
-    a.state = 1000
-    a.schedule_attr_broadcast('state', 1)
-    b.state = "hey all"
-    b.schedule_attr_broadcast('state', 1)
+    # a.broadcast_message("hi to me")
+    # a.state = 1000
+    # a.schedule_attr_broadcast('state', 1)
+    # b.state = "hey all"
+    # b.schedule_attr_broadcast('state', 1)
     input()
     
