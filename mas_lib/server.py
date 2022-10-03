@@ -26,7 +26,7 @@ def server_program():
 def _connect_to_network(conn, address):
     print("Connection from: " + str(address[0]))
     while True:
-        data = conn.recv(1024).decode()
+        data = conn.recv(32).decode()
         if not data:
             if len(CONNECTIONS[address[0]]) <= 1:
                 CONNECTIONS.pop(address[0])
@@ -34,7 +34,9 @@ def _connect_to_network(conn, address):
                 CONNECTIONS[address[0]].remove(conn)
             break
         n = sum([len(val) for val in CONNECTIONS.values()])
-        print("from " + str(data).strip(":"), f" *(broadcasting to {n-1} out of {n} connections in network!)")
+        print("from " + str(data).strip().strip(":"), f" *(broadcasting to {n-1} out of {n} connections in network!)")
+        if len(data) != 32:
+            raise(Exception("Invalid Message Size!!!"))
         for addr, connection in CONNECTIONS.items():
             for c in connection:
                 if c == conn:

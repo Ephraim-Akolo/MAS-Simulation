@@ -27,23 +27,26 @@ class ComBase:
         return True
     
     def broadcast_message(self, message:str):
-        return self._server_socket.send((":"+self.name+":"+message).encode())  # send message
+        message = self.name + ":" + message
+        message = message + (" "*(32-len(message)))
+        if len(message) != 32:
+            raise(Exception("Invalid Message Size!!!"))
+        return self._server_socket.send(message.encode())  # send message
 
     def _recieve_broadcast(self):
         data, name_msg = "", ""
         while data.lower().strip() != 'bye':
-            data = self._server_socket.recv(1024).decode()  # receive response
+            data = self._server_socket.recv(32).decode()  # receive response
             if not data:
                 self._server_socket.close() 
                 raise(ConnectionError("Broken Pipeline!"))
-            name_msg = data.strip(":").split(":") # Had issues with two commands concatenated together or ovalaping
-            if (l:=len(name_msg)) % 2:
+            name_msg = data.strip().split(":") # Had issues with two commands concatenated together or ovalaping
+            if len(name_msg) > 2:
                 print("ERROR PARSING COMMAND:", name_msg)
                 continue
             if name_msg[0] == self.name:
-                continue
-            for i in range(0, l, 2):    
-                self.broadcast(*name_msg[i:i+2])
+                continue  
+            self.broadcast(*name_msg)
 
     def broadcast(self, name:str, state:str): # Override function
         print(name, state)
@@ -65,7 +68,26 @@ class ComBase:
                 while not self._connect_to_network():
                     sleep(5)
             sleep(interval)
-
+    
+    @staticmethod
+    def its_B(name:str) -> int|None:
+        if len(name) > 1 and name[0] == "B" and name[1:].isnumeric():
+            return int(name[1:])
+    
+    @staticmethod
+    def its_DG(name:str) -> int|None:
+        if len(name) > 2 and name[:2] == "DG" and name[2:].isnumeric():
+            return int(name[2:])
+    
+    @staticmethod
+    def its_CB(name:str) -> int|None:
+        if len(name) > 2 and name[:2] == "CB" and name[2:-1].isnumeric():
+            return int(name[2:-1])
+    
+    @staticmethod
+    def its_SOURCE(name:str) -> int|None:
+        if len(name) > 6 and name[:6] == "SOURCE" and name[6:-1].isnumeric():
+            return int(name[6:-1])
 
 if __name__ == "__main__":
     ComBase("agent1")
