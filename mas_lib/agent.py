@@ -20,6 +20,10 @@ class AgentCB(ComBase):
 
     id = None
 
+    _agents_states = {}
+
+    supply_line:str = None
+
     # dggg = False
 
     def __init__(self, name:str, host:str="", port:int=10001, state:int=0, non_blocking_callback=None) -> None:
@@ -29,12 +33,14 @@ class AgentCB(ComBase):
             raise(Exception("Not a valid CircuitBreaker Name!"))
         self.id = id
         self.neighbors = MyParser.get_neighbors(name)
+        self.supply_line = MyParser.get_all_agents_from_source(name)
         self._state:str = self.switch[state]
         self._callback = non_blocking_callback
         if not self.schedule_attr_broadcast("_state", 1):
             raise(Exception("Error Scheduling broadcast"))
     
     def broadcast(self, name, state):
+        self._agents_states[name] = state
         # if self.dggg and self.name == "CB4A":
         #     if self.state == self.switch[0] :
         #         self.state = 1
@@ -54,7 +60,26 @@ class AgentCB(ComBase):
             voltage = float(state)
             if voltage < self.buses_volatage_rule['min'] or voltage > self.buses_volatage_rule["max"]:
                 self.state = 0
-    
+                if self.state == self.switch[0] and not self._around_first_bus():
+                    self.state = 1
+        
+    def _around_first_bus(self):
+        '''
+        '''
+        for agent in self.supply_line:
+            if id:=self.its_B(agent):
+                if float(self._agents_states[agent]) == 0:
+                    if id == self.id:
+                        return True
+                    else:
+                        return False
+        try:
+            if not float(self._agents_states[f"B{self.id}"]):
+                return True
+        except:
+            pass
+        return False
+
     def _reset(self):
         self.state = 1
         self.buses_volatage_rule = {"min": MIN_VOLATAGE, "max": LINE_VOLTAGE}
@@ -136,19 +161,13 @@ class AgentB(AgentPower):
             return
         if not self.broken:
             if self._no_breakage_from_source():
-                self.voltage = float(self._agents_states[self.neighboring_sources[0]]) if self._m else float(self._agents_states[self.neighboring_sources[1]])
+                self.voltage = LINE_VOLTAGE
             else:
                 self.voltage = 0
     
     def _no_breakage_from_source(self) -> bool:
         n = self._no_breakage_from_line(True)
         self._m = m = self._no_breakage_from_line()
-        # if n:
-        #     print("power from generator")
-        # elif m:
-        #     pass
-        # else:
-        #     print(self.name, "has no power source")
         if m and n:
             raise(Exception("Power from Generator on while Source is active!!!"))
         if m or n:
@@ -161,8 +180,8 @@ class AgentB(AgentPower):
             try:
                 if self.its_CB(agent) and self._agents_states[agent] == AgentCB.switch[0]:# do not use AgentCB class
                     return False
-                elif self.its_B(agent) and float(self._agents_states[agent]) == 0:
-                    return False
+                # elif self.its_B(agent) and float(self._agents_states[agent]) == 0:
+                #     return False
                 elif self.its_SOURCE(agent) and float(self._agents_states[agent]) == 0:
                     return False
                 elif self.its_DG(agent) and float(self._agents_states[agent])== 0:
