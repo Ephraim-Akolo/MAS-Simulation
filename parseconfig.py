@@ -59,7 +59,7 @@ class MyParser:
 
     @classmethod
     def get_my_dg(cls, bus_name):
-        if cls.its_B(bus_name):
+        if not cls.its_B(bus_name):
             return
         for dg, vals in cls._model["DGDesignations"].items():
             if bus_name in vals:
