@@ -6,6 +6,7 @@ LINE_VOLTAGE = 33
 
 MIN_VOLATAGE = 10
 
+
 class AgentCB(ComBase):
 
     _callback = None
@@ -24,8 +25,6 @@ class AgentCB(ComBase):
 
     supply_line:str = None
 
-    # dggg = False
-
     def __init__(self, name:str, host:str="", port:int=10001, state:int=0, non_blocking_callback=None) -> None:
         super().__init__(name, host, port)
         id = self.its_CB(name)
@@ -41,10 +40,6 @@ class AgentCB(ComBase):
     
     def broadcast(self, name, state):
         self._agents_states[name] = state
-        # if self.dggg and self.name == "CB4A":
-        #     if self.state == self.switch[0] :
-        #         self.state = 1
-        #     return
         if self.its_SOURCE(name) and state == 'r':
             self._reset()
             return
@@ -62,6 +57,8 @@ class AgentCB(ComBase):
                 self.state = 0
                 if self.state == self.switch[0] and not self._around_first_bus():
                     self.state = 1
+                if self.state == self.switch[1]:
+                    pass
         
     def _around_first_bus(self):
         '''
@@ -83,6 +80,15 @@ class AgentCB(ComBase):
     def _reset(self):
         self.state = 1
         self.buses_volatage_rule = {"min": MIN_VOLATAGE, "max": LINE_VOLTAGE}
+        for key in self._agents_states.keys():
+            if self.its_B(key):
+                self._agents_states[key] = str(LINE_VOLTAGE)
+            elif self.its_CB(key):
+                self._agents_states[key] = AgentCB.switch[1]
+            elif self.its_DG(key):
+                self._agents_states[key] = str(0)
+            elif self.its_SOURCE(key):
+                self._agents_states[key] = str(LINE_VOLTAGE)
     
     @property
     def state(self):
@@ -91,13 +97,9 @@ class AgentCB(ComBase):
     @state.setter
     def state(self, value):
         if value == 0 or value == 1:
-            # print(self.name, "changing to ", self.switch[value])
             self._state = self.switch[value]
             if self._callback:
                 self._callback(value)
-        else:
-            # print("state can either be '1' or '0'")
-            pass
 
 
 class AgentPower(ComBase):
@@ -115,11 +117,7 @@ class AgentPower(ComBase):
     @voltage.setter
     def voltage(self, value):
         if value >= 0 or value <= LINE_VOLTAGE:
-            #print(self.name, "changing to ", value)
             self._state = value
-        else:
-            #print(f"voltage is between 0 and {LINE_VOLTAGE} volt")
-            pass
 
 
 class AgentB(AgentPower):
@@ -149,11 +147,9 @@ class AgentB(AgentPower):
         self.main_line = MyParser.get_all_agents_from_source(name)
         self.dg_line = MyParser.get_all_agents_from_source(name, False)
         self.neighboring_sources = MyParser.get_pri_sec_sources(name)
-        # self.DG = MyParser.get_my_dg(name)
         if not self.schedule_attr_broadcast("voltage", 1):
             raise(Exception("Error Scheduling broadcast"))
 
-    # get primary source bus and secondary source bus propably from config parser
     def broadcast(self, name: str, state: str):
         self._agents_states[name] = state
         if self.its_SOURCE(name) and state == 'r':
