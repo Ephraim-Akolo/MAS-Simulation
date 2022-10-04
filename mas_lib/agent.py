@@ -57,8 +57,7 @@ class AgentCB(ComBase):
                 self.state = 0
                 if self.state == self.switch[0] and not self._around_first_bus():
                     self.state = 1
-                if self.state == self.switch[1]:
-                    pass
+                # implement what happens on second breakage from generator. (circuit breaker needs to break to kill buses from dg source)
         
     def _around_first_bus(self):
         '''
