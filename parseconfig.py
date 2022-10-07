@@ -83,7 +83,10 @@ class MyParser:
 
     @classmethod
     def get_after_dg_designations(cls, dg):
-        return cls._model["DGDesignations"][dg][1]
+        ret = cls._model["DGDesignations"][dg]
+        if len(ret) == 2:
+            return ret[1]
+        return []
 
     @classmethod
     def get_b4_dg_designations(cls, dg):
@@ -188,7 +191,8 @@ class MyParser:
 if __name__ == "__main__":
     # MyParser.print_model()
     # print(MyParser.get_neighbors('CB1B'))
-    print(MyParser.get_dg_designations('DG1'))
+    # print(MyParser.get_dg_designations('DG1'))
     # print(MyParser.get_pri_sec_sources("B4"))
     # print(MyParser.get_all_agents_from_source("B1", True))
-    print(MyParser.closest_bus2source(["B5", "B2", "B3", "B4"]))
+    # print(MyParser.closest_bus2source(["B5", "B2", "B3", "B4"]))
+    print(MyParser.get_after_dg_designations("DG2"))
