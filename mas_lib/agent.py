@@ -25,6 +25,8 @@ class AgentCB(ComBase):
 
     supply_line:str = None
 
+    _supply_is_DG = False
+
     def __init__(self, name:str, host:str="", port:int=10001, state:int=1, non_blocking_callback=None) -> None:
         super().__init__(name, host, port)
         self._state:str = self.switch[state]
@@ -45,6 +47,8 @@ class AgentCB(ComBase):
             self._reset()
         elif self.neighbors and name in self.neighbors and self.its_B(name) != None:
             self._affected_action(name, state)
+            if self.name == "CB10A":
+                print(self._supply_is_DG)
 
     def broadcast_message(self, message: str):
         return super().broadcast_message(message)
@@ -56,13 +60,14 @@ class AgentCB(ComBase):
                 self.state = 0
             else:
                 self.state = 1
+                self._supply_is_DG = True
             # implement what happens on second breakage from generator. (circuit breaker needs to break to kill buses from dg source)
         
     def _around_first_bus(self):
         # If a circuit breaker around a bus in the supply line is broken, return true else return false.
         for agent in self.supply_line:
             if id:=self.its_B(agent) and float(self._agents_states[agent]) == 0:
-                return id == self.id
+                return id == self.id 
         # for the circuit breakers that are before their buses... they will escape the above conditions so handle them seperatly.
         try:
             if not float(self._agents_states[f"B{self.id}"]):
@@ -73,6 +78,7 @@ class AgentCB(ComBase):
 
     def _reset(self):
         self.state = 1
+        self._supply_is_DG = False
         self.buses_volatage_rule = {"min": MIN_VOLATAGE, "max": LINE_VOLTAGE}
         for key in self._agents_states.keys():
             if self.its_B(key):
@@ -220,11 +226,17 @@ class AgentDG(AgentPower):
 
     _designations:list = None
 
+    _after_designations:list = None
+
     _response_time:float = None
 
     _cb_around_b:set = None
 
     broken_buses:list = None
+
+    _agents_states = {}
+
+    main_line = None
 
     id = None
 
@@ -237,6 +249,8 @@ class AgentDG(AgentPower):
             raise(Exception("Error Scheduling broadcast"))
         self.id = id
         self._designations = MyParser.get_dg_designations(name)
+        self._after_designations = [self.its_B(i) for i in MyParser.get_after_dg_designations(name)]
+        self.main_line = MyParser.get_all_agents_from_source(name)
         self._response_time = response_time
         self.broken_buses = []
         cb = []
@@ -246,6 +260,7 @@ class AgentDG(AgentPower):
         
     
     def broadcast(self, name: str, state: str):
+        self._agents_states[name] = state
         if self.its_SOURCE(name) and state == 'r':
             self._reset()
             return
@@ -269,21 +284,50 @@ class AgentDG(AgentPower):
             self.broken_buses.remove(name)
             self.voltage = 0
         else:
-            if name not in self.broken_buses:
-                self.broken_buses.append(name)
-            sleep(self._response_time)
-            self.voltage = LINE_VOLTAGE
+            if self.its_CB(name) not in self._after_designations:
+                print(name, self._after_designations)
+                if name not in self.broken_buses:
+                    self.broken_buses.append(name)
+                sleep(self._response_time)
+                self.voltage = LINE_VOLTAGE
     
     def _affected_action_2(self):
         # sleep(self._response_time)
-        self.voltage = LINE_VOLTAGE
+        if not self._no_breakage_from_line:
+            self.voltage = LINE_VOLTAGE
     
     def _affected_action_3(self):
         self.voltage = 0
     
+    def _no_breakage_from_line(self):
+        _line = self.main_line[:-1]
+        for agent in _line:
+            try:
+                if self.its_CB(agent) and self._agents_states[agent] == AgentCB.switch[0]:# do not use AgentCB class
+                    return False
+                elif self.its_B(agent) and float(self._agents_states[agent]) == 0:
+                    return False
+                elif self.its_SOURCE(agent) and float(self._agents_states[agent]) == 0:
+                    return False
+                elif self.its_DG(agent) and float(self._agents_states[agent])== 0:
+                    return False
+            except Exception as e:
+                print(e)
+                pass
+        return True
+    
     def _reset(self):
         self.voltage = 0
         self.broken_buses = []
+        for key in self._agents_states.keys():
+            if self.its_B(key):
+                self._agents_states[key] = str(LINE_VOLTAGE)
+            elif self.its_CB(key):
+                self._agents_states[key] = AgentCB.switch[1]
+            elif self.its_DG(key):
+                self._agents_states[key] = str(0)
+            elif self.its_SOURCE(key):
+                self._agents_states[key] = str(LINE_VOLTAGE)
 
 
 if __name__ == "__main__":
