@@ -25,56 +25,51 @@ class AgentCB(ComBase):
 
     supply_line:str = None
 
-    def __init__(self, name:str, host:str="", port:int=10001, state:int=0, non_blocking_callback=None) -> None:
+    def __init__(self, name:str, host:str="", port:int=10001, state:int=1, non_blocking_callback=None) -> None:
         super().__init__(name, host, port)
+        self._state:str = self.switch[state]
         id = self.its_CB(name)
         if not id:
             raise(Exception("Not a valid CircuitBreaker Name!"))
+        if not self.schedule_attr_broadcast("_state", 1): # make sure dependent variables are initialized before Threads start broadcasting them!
+            raise(Exception("Error Scheduling broadcast"))
         self.id = id
         self.neighbors = MyParser.get_neighbors(name)
         self.supply_line = MyParser.get_all_agents_from_source(name)
-        self._state:str = self.switch[state]
         self._callback = non_blocking_callback
-        if not self.schedule_attr_broadcast("_state", 1):
-            raise(Exception("Error Scheduling broadcast"))
+        
     
     def broadcast(self, name, state):
         self._agents_states[name] = state
         if self.its_SOURCE(name) and state == 'r':
             self._reset()
-            return
-        if self.neighbors:
-            if name in self.neighbors:
-                self._affected_action(name, state)
-    
+        elif self.neighbors and name in self.neighbors and self.its_B(name) != None:
+            self._affected_action(name, state)
+
     def broadcast_message(self, message: str):
         return super().broadcast_message(message)
     
     def _affected_action(self, name, state):
-        if self.its_B(name) != None:
-            voltage = float(state)
-            if voltage < self.buses_volatage_rule['min'] or voltage > self.buses_volatage_rule["max"]:
+        voltage = float(state)
+        if voltage < self.buses_volatage_rule['min'] or voltage > self.buses_volatage_rule["max"]:
+            if self._around_first_bus():
                 self.state = 0
-                if self.state == self.switch[0] and not self._around_first_bus():
-                    self.state = 1
-                # implement what happens on second breakage from generator. (circuit breaker needs to break to kill buses from dg source)
+            else:
+                self.state = 1
+            # implement what happens on second breakage from generator. (circuit breaker needs to break to kill buses from dg source)
         
     def _around_first_bus(self):
-        '''
-        '''
+        # If a circuit breaker around a bus in the supply line is broken, return true else return false.
         for agent in self.supply_line:
-            if id:=self.its_B(agent):
-                if float(self._agents_states[agent]) == 0:
-                    if id == self.id:
-                        return True
-                    else:
-                        return False
+            if id:=self.its_B(agent) and float(self._agents_states[agent]) == 0:
+                return id == self.id
+        # for the circuit breakers that are before their buses... they will escape the above conditions so handle them seperatly.
         try:
             if not float(self._agents_states[f"B{self.id}"]):
                 return True
         except:
             pass
-        return False
+        return False # otherwise return false
 
     def _reset(self):
         self.state = 1
@@ -97,8 +92,6 @@ class AgentCB(ComBase):
     def state(self, value):
         if value == 0 or value == 1:
             self._state = self.switch[value]
-            if self._callback:
-                self._callback(value)
 
 
 class AgentPower(ComBase):
@@ -137,24 +130,24 @@ class AgentB(AgentPower):
 
     _m = True
 
-    def __init__(self, name: str, host: str = "", port: int = 10001, voltage: float = 0) -> None:
+    def __init__(self, name: str, host: str = "", port: int = 10001, voltage: float = LINE_VOLTAGE) -> None:
         super().__init__(name, host, port, voltage)
         id = self.its_B(name)
         if not id:
             raise(Exception("Not a valid Bus Name!"))
+        if not self.schedule_attr_broadcast("voltage", 1):
+            raise(Exception("Error Scheduling broadcast"))
         self.id = id
         self.main_line = MyParser.get_all_agents_from_source(name)
         self.dg_line = MyParser.get_all_agents_from_source(name, False)
         self.neighboring_sources = MyParser.get_pri_sec_sources(name)
-        if not self.schedule_attr_broadcast("voltage", 1):
-            raise(Exception("Error Scheduling broadcast"))
+        
 
     def broadcast(self, name: str, state: str):
         self._agents_states[name] = state
         if self.its_SOURCE(name) and state == 'r':
             self._reset()
-            return
-        if not self.broken:
+        elif not self.broken:
             if self._no_breakage_from_source():
                 self.voltage = LINE_VOLTAGE
             else:
@@ -165,9 +158,10 @@ class AgentB(AgentPower):
         self._m = m = self._no_breakage_from_line()
         if m and n:
             raise(Exception("Power from Generator on while Source is active!!!"))
-        if m or n:
+        elif m or n:
             return True
-        return False
+        else:
+            return False
     
     def _no_breakage_from_line(self, dg_line=False):
         _line = self.dg_line[:-1] if dg_line else self.main_line[:-1]
@@ -211,9 +205,10 @@ class AgentSource(AgentPower):
         id = self.its_SOURCE(name)
         if not id:
             raise(Exception("Not a valid Source Name!"))
-        self.id = id
         if not self.schedule_attr_broadcast("voltage", 1):
             raise(Exception("Error Scheduling broadcast"))
+        self.id = id
+        
     
     def reset_network(self):
         for i in range(10):
@@ -238,17 +233,17 @@ class AgentDG(AgentPower):
         id = self.its_DG(name)
         if not id:
             raise(Exception("Not a valid Generator Name!"))
+        if not self.schedule_attr_broadcast("voltage", 1):
+            raise(Exception("Error Scheduling broadcast"))
         self.id = id
-        parser = MyParser
-        self._designations = parser.get_dg_designations(name)
+        self._designations = MyParser.get_dg_designations(name)
         self._response_time = response_time
         self.broken_buses = []
         cb = []
         for bus in self._designations:
-            cb += parser.get_neighbors(bus)
+            cb += MyParser.get_neighbors(bus)
         self._cb_around_b = set(cb)
-        if not self.schedule_attr_broadcast("voltage", 1):
-            raise(Exception("Error Scheduling broadcast"))
+        
     
     def broadcast(self, name: str, state: str):
         if self.its_SOURCE(name) and state == 'r':
