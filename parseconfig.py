@@ -13,6 +13,30 @@ class MyParser:
     _model = _model
 
     @staticmethod
+    def its_B(name:str) -> int|None:
+        if len(name) > 1 and name[0] == "B" and name[1:].isnumeric():
+            return int(name[1:])
+    
+    @staticmethod
+    def its_SOURCE(name:str) -> int|None:
+        if len(name) > 6 and name[:6] == "SOURCE" and name[6:-1].isnumeric():
+            return int(name[6:-1])
+    
+    @staticmethod
+    def its_DG(name:str) -> int|None:
+        if len(name) > 2 and name[:2] == "DG" and name[2:].isnumeric():
+            return int(name[2:])
+    
+    @staticmethod
+    def its_CB(name:str) -> int|None:
+        if len(name) > 2 and name[:2] == "CB" and name[2:-1].isnumeric():
+            return int(name[2:-1])
+    
+    @staticmethod
+    def _expand_list(x:list) -> list:
+        return [i for l in x for i in l]
+
+    @staticmethod
     def _print_model(model):
         if not len(model):
             print("dead end!")
@@ -55,35 +79,25 @@ class MyParser:
     
     @classmethod
     def get_dg_designations(cls, dg):
-        return cls._model["DGDesignations"][dg]
+        return cls._expand_list(cls._model["DGDesignations"][dg])
+
+    @classmethod
+    def get_after_dg_designations(cls, dg):
+        return cls._model["DGDesignations"][dg][1]
+
+    @classmethod
+    def get_b4_dg_designations(cls, dg):
+        return cls._model["DGDesignations"][dg][0]
+
 
     @classmethod
     def get_my_dg(cls, bus_name):
         if not cls.its_B(bus_name):
             return
         for dg, vals in cls._model["DGDesignations"].items():
+            vals = cls._expand_list(vals)
             if bus_name in vals:
                 return dg
-    
-    @staticmethod
-    def its_B(name:str) -> int|None:
-        if len(name) > 1 and name[0] == "B" and name[1:].isnumeric():
-            return int(name[1:])
-    
-    @staticmethod
-    def its_SOURCE(name:str) -> int|None:
-        if len(name) > 6 and name[:6] == "SOURCE" and name[6:-1].isnumeric():
-            return int(name[6:-1])
-    
-    @staticmethod
-    def its_DG(name:str) -> int|None:
-        if len(name) > 2 and name[:2] == "DG" and name[2:].isnumeric():
-            return int(name[2:])
-    
-    @staticmethod
-    def its_CB(name:str) -> int|None:
-        if len(name) > 2 and name[:2] == "CB" and name[2:-1].isnumeric():
-            return int(name[2:-1])
     
     @classmethod
     def _get_source_bus(cls, model:dict, id:str, s_bus:str=-1) -> str: # zero for source and > 0 for bus number
@@ -91,6 +105,7 @@ class MyParser:
             return
         keys = list(model.keys())
         if id not in keys:
+
             for key in keys:
                 if _s_b:=cls.its_B(key):
                     s_bus = f"B{_s_b}"
@@ -173,7 +188,7 @@ class MyParser:
 if __name__ == "__main__":
     # MyParser.print_model()
     # print(MyParser.get_neighbors('CB1B'))
-    # print(MyParser.get_dg_designations('DG1'))
+    print(MyParser.get_dg_designations('DG1'))
     # print(MyParser.get_pri_sec_sources("B4"))
     # print(MyParser.get_all_agents_from_source("B1", True))
     print(MyParser.closest_bus2source(["B5", "B2", "B3", "B4"]))
