@@ -49,9 +49,8 @@ class ComBase:
             self.broadcast(*name_msg)
 
     def broadcast(self, name:str, state:str): # Override function
-        print(name, state)
+        raise(NotImplementedError("broadcast must be overwritten"))
     
-
     def schedule_attr_broadcast(self, attr:str, interval:int) -> bool:
         try:
             Thread(name=attr, target=self._attr_broadcast, args=(attr, interval), daemon=True).start()
@@ -62,6 +61,8 @@ class ComBase:
     
     def _attr_broadcast(self, attr, interval):
         while True:
+            if hasattr(self, "_callback") and callable(self._callback):
+                self._callback(getattr(self, attr))
             try:
                 self.broadcast_message(str(getattr(self, attr)))
             except:
