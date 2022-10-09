@@ -1,5 +1,13 @@
 import json
 
+LINE_VOLTAGE = 33
+
+MIN_VOLATAGE = 10
+
+state_live_ = "live"
+
+state_broken_ = "broken"
+
 file_loc="./config.json"
 
 with open(file_loc, 'r') as fp:
@@ -156,43 +164,59 @@ class MyParser:
             model = cls._model["DGModel"]
         return cls._get_all_cb_from_source(model, bus)
     
-    # @classmethod
-    # def _closest_bus2source(cls, model, buses, ranking:list, count=0):
-    #     count += 1
-    #     max_ranking_found = 3
-    #     if (not len(model)) or len(ranking) == 1:
-    #         return
-    #     keys = list(model.keys())
-    #     for _k in keys:
-    #         if _k in buses:
-    #             ranking.append({_k:count})
-    #         cls._closest_bus2source(model[_k], buses, ranking, count)
+    @classmethod
+    def i_am_boundary_cb(cls, cb_name) -> None|tuple:
+        boundary_cbs:dict = cls._model["BoundaryCBs"]
+        if cb_name in boundary_cbs.keys():
+            return tuple(*boundary_cbs.values())
     
-    # @classmethod
-    # def first_closest_bus2source(cls, buses):
-    #     for bus in buses:
-    #         if not cls.its_B(bus):
-    #             return
-    #     if not len(buses):
-    #         return
-    #     if len(buses) == 1:
-    #         return buses[0]
-    #     model = cls._model["SystemModel"]
-    #     buses_ranking = []
-    #     cls._closest_bus2source(model, buses, buses_ranking)
-    #     if len(buses_ranking):
-    #         for i, bus in enumerate(buses_ranking):
-    #             if i == 0:
-    #                 min_bus = bus
-    #                 continue
-    #             min_bus = bus if list(bus.values())[0] < list(min_bus.values())[0] else min_bus
-    #         return list(min_bus.keys())[0]
+    @classmethod
+    def get_dg_first_cb(cls, dg):
+        if cls.its_DG(dg):
+            model = tuple(cls._model["DGModel"][dg].keys())[0]
+            return model
+            # n = cls.get_neighbors(model)
+            # for _n in n:
+            #     if cls.its_CB(_n):
+            #         return _n
+
+    @classmethod
+    def _init_dict(cls, model:dict, li:dict):
+        #def _get_neighbors(cls, model:dict, id:str, prev_key:str) -> list:
+        if not len(model):
+            return
+        keys = list(model.keys())
+        for key in keys:
+            if key not in li:
+                li[key] = cls.get_r_val(key)
+            cls._init_dict(model[key], li)
+    
+    @classmethod
+    def get_r_val(cls, agent):
+        if cls.its_CB(agent):
+            return state_live_
+        elif cls.its_B(agent):
+            return str(LINE_VOLTAGE)
+        elif cls.its_SOURCE(agent):
+            return str(LINE_VOLTAGE)
+        elif cls.its_DG(agent):
+            return str(0)
+
+    @classmethod
+    def init_agent_dict(cls) -> dict:
+        dct = {}
+        model = cls._model["SystemModel"]
+        cls._init_dict(model, dct)
+        return dct
 
 if __name__ == "__main__":
     # MyParser.print_model()
     # print(MyParser.get_neighbors('CB1B'))
     # print(MyParser.get_dg_designations('DG1'))
     # print(MyParser.get_pri_sec_sources("B4"))
-    # print(MyParser.get_all_agents_from_source("B1", True))
+    # print(MyParser.get_all_agents_from_source("DG2", True))
     # print(MyParser.closest_bus2source(["B5", "B2", "B3", "B4"]))
-    print(MyParser.get_after_dg_designations("DG2"))
+    # print(MyParser.get_after_dg_designations("DG2"))
+    # print(MyParser.i_am_boundary_cb("CB7A"))
+    # print(MyParser.get_dg_first_cb("DG1"))
+    print(MyParser.init_agent_dict())
