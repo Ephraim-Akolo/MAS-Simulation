@@ -1,0 +1,26 @@
+
+MASManager:
+    canvas.before:
+        Color:
+            rgb: 1, 1, 1
+        Rectangle:
+            size: self.size
+            pos: self.pos
+    Screen:
+        name: "welcome_screen"
+        MLabel:
+            text: "Welcome"
+
+    Screen:
+        name: "simulation_screen"
+        BoxLayout:
+            orientation: "horizontal"
+            SimulationArea:
+            BoxLayout:
+                orientation: "vertical"
+                ScrollView:
+                ScrollView:
+                TextInput:
+                Button:
+                    text: "Break"
+            
