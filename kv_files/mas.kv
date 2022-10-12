@@ -2,7 +2,7 @@
 MASManager:
     canvas.before:
         Color:
-            rgb: 1, 1, 1
+            rgba: light_background_color
         Rectangle:
             size: self.size
             pos: self.pos
@@ -18,9 +18,10 @@ MASManager:
             SimulationArea:
             BoxLayout:
                 orientation: "vertical"
-                ScrollView:
-                ScrollView:
-                TextInput:
-                Button:
-                    text: "Break"
+                size_hint_x: None
+                width: "100dp"
+                Console:
+                DashBoard:
+                BreakButton:
+                    text: "Simulate"
             

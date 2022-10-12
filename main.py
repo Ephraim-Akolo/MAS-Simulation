@@ -5,14 +5,17 @@ from kivy.uix.screenmanager import ScreenManager
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.lang import Builder 
 from kivy.clock import Clock
+from assets import *
+from mas_lib.agent import AgentCB, AgentB, AgentDG, AgentSource
 
 class SimulationArea(RelativeLayout):
     pass
 
 
 class MASManager(ScreenManager):
+    
     def on_kv_post(self, base_widget):
-        Clock.schedule_once(lambda x: self.change_screens("simulation_screen"), 3)
+        Clock.schedule_once(lambda x: self.change_screens("simulation_screen"), 2)
         return super().on_kv_post(base_widget)
     
     def change_screens(self, screen:str):
