@@ -1,52 +1,33 @@
-from time import sleep
+from kivy import require
+require("2.1.0")
+from kivy.app import App
+from kivy.uix.screenmanager import ScreenManager
+from kivy.uix.relativelayout import RelativeLayout
+from kivy.lang import Builder 
+from kivy.clock import Clock
+from assets import *
 from mas_lib.agent import AgentCB, AgentB, AgentDG, AgentSource
 
-source = AgentSource('SOURCE33V')
-dg = [
-    AgentDG("DG1"),
-    AgentDG("DG2")
-]
-cb = [
-    AgentCB("CB1A"),
-    AgentCB("CB1B"),
-    AgentCB("CB2A"),
-    AgentCB("CB2B"),
-    AgentCB("CB3A"),
-    AgentCB("CB4A"),
-    AgentCB("CB4B"),
-    AgentCB("CB5A"),
-    AgentCB("CB6A"),
-    AgentCB("CB7A"),
-    AgentCB("CB7B"),
-    AgentCB("CB8A"),
-    AgentCB("CB9A"),
-    AgentCB("CB9B"),
-    AgentCB("CB10A")
-    ]
-b =[
-    AgentB("B1"),
-    AgentB("B2"),
-    AgentB("B3"),
-    AgentB("B4"),
-    AgentB("B5"),
-    AgentB("B6"),
-    AgentB("B7"),
-    AgentB("B8"),
-    AgentB("B9"),
-    AgentB("B10")
-]
+class SimulationArea(RelativeLayout):
+    pass
 
 
+class MASManager(ScreenManager):
+    
+    def on_kv_post(self, base_widget):
+        Clock.schedule_once(lambda x: self.change_screens("simulation_screen"), 2)
+        return super().on_kv_post(base_widget)
+    
+    def change_screens(self, screen:str):
+        self.current = screen
 
 
-for i in ((1, 3), (3, 1), (1, 4), (9, 7), (8 , 10), (4, 9), (2, 3, 8)):
-    print("Breaking!!!!!!!!!!!!!!!!!!!!!!!!!!", i[0], "then", i[1], "later")
-    input()
-    for j in i:
-        print("NOW BREAKING!!!!!!!!!!!!!!!!!!!!!!!!!", j)
-        b[j-1].broken = True
-        b[j-1].voltage = 0
-        input()
-    source.reset_network()
+class MASApp(App):
+
+    def build(self):
+        Builder.load_file("./kv_files/assets.kv")
+        return Builder.load_file("./kv_files/mas.kv")
 
 
+if __name__ == "__main__":
+    MASApp().run()

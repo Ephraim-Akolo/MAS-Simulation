@@ -1,0 +1,54 @@
+
+#:set light_background_color (.95, .95, .95, 1)
+#:set dark_background_color (0, 0, 0, 1)
+#:set light_primary_color (0, 0, 0, 1)
+#:set dark_primary_color (1, 1, 1, 1)
+#:set dashboard_color (.85, .85, .85, 1)
+
+<MLabel@Label>:
+    color: light_primary_color
+
+<MInput>:
+    multiline: False
+    on_text_validate:
+        print("hello", self)
+
+<BreakButton@Button>:
+    text: "Break"
+    size_hint_y: None
+    height: "50dp"
+
+<Console>:
+    canvas.before:
+        Color:
+            rgba: dark_background_color
+        Rectangle:
+            size: self.size
+            pos: self.pos
+    viewclass: 'Label'
+    scroll_y: 0
+    scroll_type: ['bars', 'content']
+    bar_width: "5dp"
+    RecycleBoxLayout:
+        default_size: None, dp(56)
+        default_size_hint: 1, None
+        size_hint_y: None
+        height: self.minimum_height
+        orientation: 'vertical'
+
+<DashBoard>:
+    canvas.before:
+        Color:
+            rgba: dashboard_color
+        Rectangle:
+            size: self.size
+            pos: self.pos
+    viewclass: 'MLabel'
+    scroll_type: ['bars', 'content']
+    bar_width: "5dp"
+    RecycleBoxLayout:
+        default_size: None, dp(56)
+        default_size_hint: 1, None
+        size_hint_y: None
+        height: self.minimum_height
+        orientation: 'vertical'

@@ -1,0 +1,27 @@
+
+MASManager:
+    canvas.before:
+        Color:
+            rgba: light_background_color
+        Rectangle:
+            size: self.size
+            pos: self.pos
+    Screen:
+        name: "welcome_screen"
+        MLabel:
+            text: "Welcome"
+
+    Screen:
+        name: "simulation_screen"
+        BoxLayout:
+            orientation: "horizontal"
+            SimulationArea:
+            BoxLayout:
+                orientation: "vertical"
+                size_hint_x: None
+                width: "100dp"
+                Console:
+                DashBoard:
+                BreakButton:
+                    text: "Simulate"
+            

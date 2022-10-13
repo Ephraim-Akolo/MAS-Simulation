@@ -2,7 +2,7 @@ from mas_lib.communications import ComBase
 from parseconfig import MyParser, LINE_VOLTAGE, MIN_VOLATAGE, state_broken_, state_live_
 from time import sleep
 
-refresh_time = .5
+refresh_time = 1
 
 class AgentCB(ComBase):
 
@@ -207,7 +207,7 @@ class AgentSource(AgentPower):
     def broadcast(self, name:str, state:str): # Override function
         if state.isnumeric() and float(state) == 0:
             print(name, state)
-        elif name[:2] == "DG":
+        elif name[:2] == "DG" or (name[:2] == "CB" and state== "broken") :
             print(name, state)
         
     
