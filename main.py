@@ -1,3 +1,7 @@
+from os import name as _OS_Name_
+if _OS_Name_ == 'nt':
+    from os import environ
+    environ['KIVY_GL_BACKEND'] = 'angle_sdl2'
 from kivy import require
 require("2.1.0")
 from kivy.app import App
