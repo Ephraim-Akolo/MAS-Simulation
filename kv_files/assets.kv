@@ -4,6 +4,8 @@
 #:set light_primary_color (0, 0, 0, 1)
 #:set dark_primary_color (1, 1, 1, 1)
 #:set dashboard_color (.85, .85, .85, 1)
+#:set agents_text_color dark_background_color
+#:set agents_color dark_background_color
 
 <MLabel@Label>:
     color: light_primary_color
@@ -52,3 +54,16 @@
         size_hint_y: None
         height: self.minimum_height
         orientation: 'vertical'
+
+<SourceWidget@Label>:
+    canvas:
+        Color:
+            rgba: agents_color
+        Line:
+            #:set _el_pad 2
+            ellipse: (self.x+dp(_el_pad), self.y+dp(_el_pad), self.width-dp(_el_pad*2), self.height-dp(_el_pad*2))
+    text: "33KV"  
+    color: agents_text_color
+    size_hint: None, None
+    width: "100dp"
+    height: "50dp"
