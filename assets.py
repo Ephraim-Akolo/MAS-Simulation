@@ -1,4 +1,5 @@
 
+from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.recycleview import RecycleView
 from kivy.uix.widget import Widget
@@ -8,15 +9,29 @@ class MInput(TextInput):
     pass
 
 
+class MLabel(Label):
+    pass
+
+
+class NLabel(Label):
+    pass
+
+
+class SourceWidget(NLabel):
+    state = BooleanProperty(False)
+
+
 class Console(RecycleView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.data = [{'text': str(x)} for x in range(100)]
 
+
 class DashBoard(RecycleView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.data = [{'text': str(x)} for x in range(100)]
+
 
 class LineWidget(Widget):
     horizontal = BooleanProperty(True)
@@ -40,3 +55,7 @@ class LineWidget(Widget):
             self.line_a = self.line_c = self.x + self.width//2
             self.line_b = self.y
             self.line_d = self.y + self.height
+
+
+class CBWidget(Widget):
+    state = BooleanProperty(False)
