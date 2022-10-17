@@ -56,14 +56,29 @@
         orientation: 'vertical'
 
 <SourceWidget@Label>:
+    canvas.before:
+        Color:
+            rgba: agents_color
+        Ellipse:
+            size: self.size
+            pos: self.pos
+        Color:
+            rgba: light_background_color
+        Ellipse:
+            #:set _Qpadding 1
+            size: self.width-dp(_Qpadding*2), self.height-dp(_Qpadding*2)
+            pos: self.x+dp(_Qpadding), self.y+dp(_Qpadding)
+    text: "33KV"  
+    color: agents_text_color
+    size_hint: None, None
+    width: "80dp"
+    height: "50dp"
+
+<LineWidget>:
     canvas:
         Color:
             rgba: agents_color
         Line:
-            #:set _el_pad 2
-            ellipse: (self.x+dp(_el_pad), self.y+dp(_el_pad), self.width-dp(_el_pad*2), self.height-dp(_el_pad*2))
-    text: "33KV"  
-    color: agents_text_color
-    size_hint: None, None
-    width: "100dp"
-    height: "50dp"
+            points: (self.line_a, self.line_b, self.line_c, self.line_d)
+
+
