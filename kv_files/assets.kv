@@ -9,6 +9,10 @@
 
 <MLabel@Label>:
     color: light_primary_color
+    font_size: "12sp"
+
+<NLabel@Label>:
+    font_size: "12sp"
 
 <MInput>:
     multiline: False
@@ -27,7 +31,7 @@
         Rectangle:
             size: self.size
             pos: self.pos
-    viewclass: 'Label'
+    viewclass: 'NLabel'
     scroll_y: 0
     scroll_type: ['bars', 'content']
     bar_width: "5dp"
@@ -55,7 +59,7 @@
         height: self.minimum_height
         orientation: 'vertical'
 
-<SourceWidget@Label>:
+<SourceWidget@NLabel>:
     canvas.before:
         Color:
             rgba: agents_color
@@ -71,8 +75,8 @@
     text: "33KV"  
     color: agents_text_color
     size_hint: None, None
-    width: "80dp"
-    height: "50dp"
+    width: "40dp"
+    height: "25dp"
 
 <LineWidget>:
     canvas:
