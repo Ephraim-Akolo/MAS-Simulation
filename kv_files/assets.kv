@@ -1,12 +1,22 @@
 
-#:set light_background_color (.95, .95, .95, 1)
-#:set dark_background_color (0, 0, 0, 1)
-#:set light_primary_color (0, 0, 0, 1)
-#:set dark_primary_color (1, 1, 1, 1)
+#:set background_color (.95, .95, .95, 1)
+#:set console_background_color (0, 0, 0, 1)
+#:set black_color (0, 0, 0, 1)
+#:set green_color (0, 1, 0, 1)
+#:set red_color (1, 0, 0, 1)
 #:set dashboard_color (.85, .85, .85, 1)
+#:set agents_color black_color
+#:set agents_color_active green_color
+#:set agents_color_active_red red_color
+#:set cb_color_active green_color
 
-<MLabel@Label>:
-    color: light_primary_color
+
+<MLabel>:
+    color: black_color
+    font_size: "12sp"
+
+<NLabel>:
+    font_size: "12sp"
 
 <MInput>:
     multiline: False
@@ -21,11 +31,11 @@
 <Console>:
     canvas.before:
         Color:
-            rgba: dark_background_color
+            rgba: console_background_color
         Rectangle:
             size: self.size
             pos: self.pos
-    viewclass: 'Label'
+    viewclass: 'NLabel'
     scroll_y: 0
     scroll_type: ['bars', 'content']
     bar_width: "5dp"
@@ -52,3 +62,53 @@
         size_hint_y: None
         height: self.minimum_height
         orientation: 'vertical'
+
+<SourceWidget>:
+    canvas.before:
+        Color:
+            rgba: agents_color if not self.state else agents_color_active
+        Ellipse:
+            size: self.size
+            pos: self.pos
+        Color:
+            rgba: background_color
+        Ellipse:
+            #:set _Qpadding 1
+            size: self.width-dp(_Qpadding*2), self.height-dp(_Qpadding*2)
+            pos: self.x+dp(_Qpadding), self.y+dp(_Qpadding)
+    text: "33KV"  
+    color: agents_color if not self.state else agents_color_active
+    size_hint: None, None
+    width: "50dp"
+    height: "30dp"
+
+<LineWidget>:
+    canvas:
+        Color:
+            rgba: agents_color
+        Line:
+            points: (self.line_a, self.line_b, self.line_c, self.line_d)
+
+
+<LineCap@Widget>:
+    canvas:
+        Color:
+            rgba: agents_color
+        Line:
+            points: (self.x, self.y, self.x+self.width, self.y+self.height//2, self.x, self.y+self.height)
+    size_hint: None, None
+    size: "6dp", "10dp"
+
+
+<CBWidget>:
+    canvas:
+        Color:
+            rgba: cb_color_active if not self.state else agents_color_active_red
+        Line:
+            width: 2.
+            points: (self.x, self.y, self.x+self.width, self.y+self.height)
+        Line:
+            width: 2.
+            points: (self.x, self.y+self.height, self.x+self.width, self.y)
+    size_hint: None, None
+    size: "10dp", "10dp"

@@ -2,7 +2,7 @@
 MASManager:
     canvas.before:
         Color:
-            rgba: light_background_color
+            rgba: background_color
         Rectangle:
             size: self.size
             pos: self.pos
@@ -25,3 +25,103 @@ MASManager:
                 BreakButton:
                     text: "Simulate"
             
+
+<SimulationArea>:
+    #:set branch_hint_1 .3
+    #:set branch_hint_2 .6
+    #:set branch_hint_3 .9
+    LineWidget:
+    LineCap:
+        pos_hint: {"center_y": .5, "right": 1.}
+    LineWidget:
+        horizontal: False
+        size_hint_x: None
+        width: "10dp"
+        size_hint_y: .4
+        pos_hint: {"y": 0.5, "center_x": branch_hint_1}
+    LineWidget:
+        horizontal: False
+        size_hint_x: None
+        width: "10dp"
+        size_hint_y: .4
+        pos_hint: {"top": 0.5, "center_x": branch_hint_2}
+    LineWidget:
+        horizontal: False
+        size_hint_x: None
+        width: "10dp"
+        size_hint_y: .4
+        pos_hint: {"top": 0.5, "center_x": branch_hint_3}
+    SourceWidget:
+        id: source33v
+        pos_hint: {"center_y": .5, "x": 0}
+        state: True
+    SourceWidget:
+        id: DG1
+        text: "DG1"
+        pos_hint: {"top": .1, "center_x": branch_hint_2}
+        state: True
+    SourceWidget:
+        id: DG2
+        text: "DG2"
+        pos_hint: {"top": .1, "center_x": branch_hint_3}
+    CBWidget:
+        id: CB9B
+        pos_hint: {"y": .11, "center_x": branch_hint_3}
+        state: False
+    CBWidget:
+        id: CB9A
+        pos_hint: {"center_y": .3, "center_x": branch_hint_3}
+        state: False
+    CBWidget:
+        id: CB8A
+        pos_hint: {"top": .49, "center_x": branch_hint_3}
+        state: False
+    CBWidget:
+        id: CB4B
+        pos_hint: {"y": .11, "center_x": branch_hint_2}
+        state: False
+    CBWidget:
+        id: CB4A
+        pos_hint: {"center_y": .3, "center_x": branch_hint_2}
+        state: True
+    CBWidget:
+        id: CB3A
+        pos_hint: {"top": .49, "center_x": branch_hint_2}
+        state: False
+    CBWidget:
+        id: CB5A
+        pos_hint: {"y": .51, "center_x": branch_hint_1}
+        state: False
+    CBWidget:
+        id: CB6A
+        pos_hint: {"center_y": .7, "center_x": branch_hint_1}
+        state: True
+    CBWidget:
+        id: CB1A
+        pos_hint: {"center_y": .5, "center_x": .1}
+        state: False
+    CBWidget:
+        id: CB1B
+        pos_hint: {"center_y": .5, "center_x": .27}
+        state: True
+    CBWidget:
+        id: CB2A
+        pos_hint: {"center_y": .5, "center_x": .33}
+        state: False
+    CBWidget:
+        id: CB2B
+        pos_hint: {"center_y": .5, "center_x": .57}
+        state: True
+    CBWidget:
+        id: CB7A
+        pos_hint: {"center_y": .5, "center_x": .63}
+        state: False
+    CBWidget:
+        id: CB7B
+        pos_hint: {"center_y": .5, "center_x": .87}
+        state: True
+    CBWidget:
+        id: CB10B
+        pos_hint: {"center_y": .5, "center_x": .93}
+        state: True
+        
