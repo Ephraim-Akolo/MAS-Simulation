@@ -9,6 +9,8 @@
 #:set agents_color_active green_color
 #:set agents_color_active_red red_color
 #:set cb_color_active green_color
+#:set b_color_active green_color
+#:set _Qpadding 1
 
 
 <MLabel>:
@@ -73,7 +75,6 @@
         Color:
             rgba: background_color
         Ellipse:
-            #:set _Qpadding 1
             size: self.width-dp(_Qpadding*2), self.height-dp(_Qpadding*2)
             pos: self.x+dp(_Qpadding), self.y+dp(_Qpadding)
     text: "33KV"  
@@ -103,7 +104,7 @@
 <CBWidget>:
     canvas:
         Color:
-            rgba: cb_color_active if not self.state else agents_color_active_red
+            rgba: cb_color_active if self.state else agents_color_active_red
         Line:
             width: 2.
             points: (self.x, self.y, self.x+self.width, self.y+self.height)
@@ -112,3 +113,27 @@
             points: (self.x, self.y+self.height, self.x+self.width, self.y)
     size_hint: None, None
     size: "10dp", "10dp"
+
+<BusWidget>:
+    canvas.before:
+        PushMatrix
+        Rotate:
+            angle: self.rotate
+            origin: self.center
+        Color:
+            rgba: b_color_active if self.state else agents_color_active_red
+        Rectangle:
+            pos: self.pos
+            size: self.size
+        Color:
+            rgba: background_color
+        Rectangle:
+            size: self.width-dp(_Qpadding*2), self.height-dp(_Qpadding*2)
+            pos: self.x+dp(_Qpadding), self.y+dp(_Qpadding)
+    canvas.after:
+        PopMatrix
+        
+    size_hint: None, None
+    size: "65dp", "25dp"
+    text: "{}: {}KV".format(self.name, self.voltage)
+    bold: True

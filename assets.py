@@ -3,7 +3,7 @@ from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.recycleview import RecycleView
 from kivy.uix.widget import Widget
-from kivy.properties import NumericProperty, ListProperty, BooleanProperty
+from kivy.properties import NumericProperty, StringProperty, BooleanProperty
 
 class MInput(TextInput):
     pass
@@ -58,4 +58,11 @@ class LineWidget(Widget):
 
 
 class CBWidget(Widget):
-    state = BooleanProperty(False)
+    state = BooleanProperty(True)
+
+
+class BusWidget(MLabel):
+    state = BooleanProperty(True)
+    name = StringProperty("")
+    voltage = NumericProperty(33)
+    rotate = NumericProperty(0)
