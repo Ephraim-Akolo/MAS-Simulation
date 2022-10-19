@@ -22,7 +22,7 @@ class SourceWidget(NLabel):
     state = BooleanProperty(False)
     agent_attr = NumericProperty(33)
     def on_agent_attr(self, obj, voltage):
-        if voltage > 33 or voltage < 10:
+        if voltage > LINE_VOLTAGE or voltage < MIN_VOLATAGE:
             self.state = False
         else:
             self.state = True
@@ -31,7 +31,7 @@ class SourceWidget(NLabel):
 class Console(RecycleView):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.data = [{'text': str(x)} for x in range(100)]
+        self.data = []
 
 
 class DashBoard(RecycleView):

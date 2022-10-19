@@ -8,8 +8,48 @@ MASManager:
             pos: self.pos
     Screen:
         name: "welcome_screen"
-        MLabel:
-            text: "Welcome"
+        BoxLayout:
+            orientation: "vertical"
+            padding: "50dp"
+            MLabel:
+                text: "Multi-Agent System Simulation"
+                font_size: sp(30)
+                bold: True
+            BoxLayout:
+                orientation: "vertical"
+                size_hint: None, .8
+                width: "200dp"
+                pos_hint: {"center_x":.5, "center_y": .5}
+                spacing: "20dp"
+                BoxLayout:
+                    orientation: "horizontal"
+                    MLabel:
+                        text: "Host"
+                        size_hint_x: .2
+                        bold: True
+                    MInput:
+                        id: host_input
+                        text: ""
+                        pos_hint: {"center_y": .5}
+                BoxLayout:
+                    orientation: "horizontal"
+                    MLabel:
+                        text: "Port"
+                        size_hint_x: .2
+                        bold: True
+                    MInput:
+                        id: port_input
+                        text: "10001"
+                        pos_hint: {"center_y": .5}
+                BoxLayout:
+                Button:
+                    text: "connect"
+                    size_hint_x: 1.5
+                    size_hint_y: None
+                    height: dp(50)
+                    pos_hint: {"center_x": .5}
+                    on_release:
+                        root.change_screens("simulation_screen", host_input.text, port_input.text)
 
     Screen:
         name: "simulation_screen"
@@ -25,7 +65,8 @@ MASManager:
                 size_hint_x: None
                 width: "100dp"
                 Console:
-                DashBoard:
+                    id: sexy_console
+                # DashBoard:
                 BreakButton:
                     text: "Simulate"
             

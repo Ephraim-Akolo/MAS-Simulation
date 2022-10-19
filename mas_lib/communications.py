@@ -13,9 +13,8 @@ class ComBase:
         else:
             self.host = host
         self.port = port
-        while not self._connect_to_network():
-           print(name, " failed to connect!!!")
-           sleep(5)
+        if not self._connect_to_network():
+            raise("Failed to connect!")
     
     def _connect_to_network(self) -> bool:
         try:

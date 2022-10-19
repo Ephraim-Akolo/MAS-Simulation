@@ -1,4 +1,3 @@
-from curses.ascii import isalnum
 from os import name as _OS_Name_
 if _OS_Name_ == 'nt':
     from os import environ
@@ -24,12 +23,11 @@ class SimulationArea(RelativeLayout):
 
     def __init__(self, **kw):
         super().__init__(**kw)
-        # Clock.schedule_interval(lambda x: print(self.B1_state), 2)
-        self._create_connect()
+        self.app = App.get_running_app()
         self.broken = []
     
-    def _create_connect(self):
-        self.source = AgentSource('SOURCE33V', _HOST, _PORT)
+    def create_connect(self, _HOST=_HOST, _PORT=_PORT):
+        self.source = AgentSource('SOURCE33V', _HOST, _PORT, broadcast_channel=self.comm_channel)
         self.dg = [
             AgentDG("DG1", _HOST, _PORT, non_blocking_callback=self._agent_state_callback),
             AgentDG("DG2", _HOST, _PORT, non_blocking_callback=self._agent_state_callback)
@@ -109,7 +107,6 @@ class SimulationArea(RelativeLayout):
         Thread(name="simulate_bus", target=self._simulate_bus, args=[bus_name, voltage], daemon=True).start()
     
     def _simulate_bus(self, name, voltage):
-        print(name, voltage)
         for bus in self.b:
             if bus.name == name:
                 bus.broken = True
@@ -118,16 +115,25 @@ class SimulationArea(RelativeLayout):
     def refresh(self):
         self.broken = []
         Thread(name="simulation canvas refresh", target= self.source.reset_network, daemon=True).start()
+    
+    def comm_channel(self, name, state):
+        data = self.app.root.ids.sexy_console.data
+        Clock.schedule_once(lambda x: self._comm_channel(name, state, data))
+    
+    def _comm_channel(self, name, state, data):
+        if len(data) > 100:
+            data.pop(0)
+        data.append({"text": f"{name}: {state}"})
         
 
 class MASManager(ScreenManager):
     
-    def on_kv_post(self, base_widget):
-        Clock.schedule_once(lambda x: self.change_screens("simulation_screen"), 2)
-        return super().on_kv_post(base_widget)
-    
-    def change_screens(self, screen:str):
-        self.current = screen
+    def change_screens(self, screen:str, host, port):
+        try:
+            self.ids.simulation_canvas.create_connect(host, int(port))
+            self.current = screen
+        except Exception as e:
+            print(e)
 
 
 class MASApp(App):
@@ -135,7 +141,6 @@ class MASApp(App):
     def build(self):
         Builder.load_file("./kv_files/assets.kv")
         return Builder.load_file("./kv_files/mas.kv")
-
 
 if __name__ == "__main__":
     MASApp().run()
