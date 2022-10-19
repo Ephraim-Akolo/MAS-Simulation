@@ -4,6 +4,7 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.recycleview import RecycleView
 from kivy.uix.widget import Widget
 from kivy.properties import NumericProperty, StringProperty, BooleanProperty
+from parseconfig import LINE_VOLTAGE, MIN_VOLATAGE
 
 class MInput(TextInput):
     pass
@@ -19,6 +20,12 @@ class NLabel(Label):
 
 class SourceWidget(NLabel):
     state = BooleanProperty(False)
+    agent_attr = NumericProperty(33)
+    def on_agent_attr(self, obj, voltage):
+        if voltage > 33 or voltage < 10:
+            self.state = False
+        else:
+            self.state = True
 
 
 class Console(RecycleView):
@@ -59,10 +66,29 @@ class LineWidget(Widget):
 
 class CBWidget(Widget):
     state = BooleanProperty(True)
+    agent_attr = StringProperty("")
+    
+    def on_agent_attr(self, obj, value):
+        if value == "live":
+            self.state = True
+        elif value == "broken":
+            self.state = False
+        else:
+            raise(f"{self} got invalid cb state!")
 
 
 class BusWidget(MLabel):
     state = BooleanProperty(True)
     name = StringProperty("")
-    voltage = NumericProperty(33)
+    agent_attr = NumericProperty(32)
     rotate = NumericProperty(0)
+    def on_agent_attr(self, obj, voltage):
+        if voltage > LINE_VOLTAGE or voltage < MIN_VOLATAGE:
+            self.state = False
+            self.parent.broken.append(self.name)
+        else:
+            self.state = True
+            try:
+                self.parent.broken.remove(self.name)
+            except:
+                pass

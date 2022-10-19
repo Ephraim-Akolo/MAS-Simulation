@@ -205,10 +205,11 @@ class AgentSource(AgentPower):
         #     raise(Exception("Error Scheduling broadcast"))
     
     def broadcast(self, name:str, state:str): # Override function
-        if state.isnumeric() and float(state) == 0:
-            print(name, state)
-        elif name[:2] == "DG" or (name[:2] == "CB" and state== "broken") :
-            print(name, state)
+        # if state.isnumeric() and float(state) == 0:
+        #     print(name, state)
+        # elif name[:2] == "DG" or (name[:2] == "CB" and state== "broken") :
+        #     print(name, state)
+        pass
         
     
     def reset_network(self):

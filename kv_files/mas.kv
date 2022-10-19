@@ -17,6 +17,7 @@ MASManager:
             orientation: "horizontal"
             ScrollView:
                 SimulationArea:
+                    id: simulation_canvas
                     size_hint_x: None
                     width: self.parent.width + dp(100)
             BoxLayout:
@@ -55,7 +56,7 @@ MASManager:
         size_hint_y: .4
         pos_hint: {"top": 0.5, "center_x": branch_hint_3}
     SourceWidget:
-        id: source33v
+        id: SOURCE33V
         pos_hint: {"center_y": .5, "x": 0}
         state: True
     SourceWidget:
@@ -175,5 +176,5 @@ MASManager:
         pos_hint: {"center_y": .8}
         center_x: CB6A.center_x
         rotate: 90
-        state: True
+        state: False
 

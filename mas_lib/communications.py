@@ -62,7 +62,7 @@ class ComBase:
     def _attr_broadcast(self, attr, interval):
         while True:
             if hasattr(self, "_callback") and callable(self._callback):
-                self._callback(getattr(self, attr))
+                self._callback(getattr(self, "name"), getattr(self, attr))
             try:
                 self.broadcast_message(str(getattr(self, attr)))
             except:
