@@ -1,4 +1,6 @@
 
+#:import Factory kivy.factory.Factory
+
 #:set background_color (.95, .95, .95, 1)
 #:set console_background_color (0, 0, 0, 1)
 #:set black_color (0, 0, 0, 1)
@@ -9,6 +11,8 @@
 #:set agents_color_active green_color
 #:set agents_color_active_red red_color
 #:set cb_color_active green_color
+#:set b_color_active green_color
+#:set _Qpadding 1
 
 
 <MLabel>:
@@ -16,10 +20,12 @@
     font_size: "12sp"
 
 <NLabel>:
-    font_size: "12sp"
+    font_size: "14sp"
 
 <MInput>:
     multiline: False
+    size_hint_y: None
+    height: "30dp"
     on_text_validate:
         print("hello", self)
 
@@ -27,6 +33,8 @@
     text: "Break"
     size_hint_y: None
     height: "50dp"
+    on_release:
+        Factory.PopPage().open()
 
 <Console>:
     canvas.before:
@@ -40,7 +48,7 @@
     scroll_type: ['bars', 'content']
     bar_width: "5dp"
     RecycleBoxLayout:
-        default_size: None, dp(56)
+        default_size: None, dp(20)
         default_size_hint: 1, None
         size_hint_y: None
         height: self.minimum_height
@@ -73,7 +81,6 @@
         Color:
             rgba: background_color
         Ellipse:
-            #:set _Qpadding 1
             size: self.width-dp(_Qpadding*2), self.height-dp(_Qpadding*2)
             pos: self.x+dp(_Qpadding), self.y+dp(_Qpadding)
     text: "33KV"  
@@ -103,7 +110,7 @@
 <CBWidget>:
     canvas:
         Color:
-            rgba: cb_color_active if not self.state else agents_color_active_red
+            rgba: cb_color_active if self.state else agents_color_active_red
         Line:
             width: 2.
             points: (self.x, self.y, self.x+self.width, self.y+self.height)
@@ -112,3 +119,99 @@
             points: (self.x, self.y+self.height, self.x+self.width, self.y)
     size_hint: None, None
     size: "10dp", "10dp"
+
+<BusWidget>:
+    canvas.before:
+        PushMatrix
+        Rotate:
+            angle: self.rotate
+            origin: self.center
+        Color:
+            rgba: b_color_active if self.state else agents_color_active_red
+        Rectangle:
+            pos: self.pos
+            size: self.size
+        Color:
+            rgba: background_color
+        Rectangle:
+            size: self.width-dp(_Qpadding*2), self.height-dp(_Qpadding*2)
+            pos: self.x+dp(_Qpadding), self.y+dp(_Qpadding)
+    canvas.after:
+        PopMatrix
+        
+    size_hint: None, None
+    size: "65dp", "25dp"
+    text: "{}: {}KV".format(self.name, self.agent_attr)
+    bold: True
+
+<PopPage@ModalView>:
+    background: "white"
+    overlay_color: (0, 0, 0, .1)
+    size_hint: .5, None
+    height: self.width
+    size_hint_max_x: app.root.height - dp(100)
+    size_hint_min_x: app.root.height//2
+    BoxLayout:
+        orientation: "vertical"
+        padding: "20dp"
+        spacing: "10dp"
+        MLabel:
+            text: "SIMULATE BUS VOLTAGE"
+            font_size: sp(24)
+            size_hint_y: .5
+        BoxLayout:
+            orientation: "horizontal"
+            size_hint_x: .9
+            pos_hint: {"center_x": .5}
+            spacing: "30dp"
+            BoxLayout:
+                orientation: "vertical"
+                MLabel:
+                    text: "Bus name"
+                    size_hint_y: None
+                    text_size: self.size
+                    height: "30dp"
+                MInput:
+                    id: name_input
+            BoxLayout:
+                orientation: "vertical"
+                MLabel:
+                    text: "Voltage"
+                    size_hint_y: None
+                    text_size: self.size
+                    height: "30dp"
+                MInput:
+                    id: voltage_input
+        BoxLayout:
+            orientation:
+        Button:
+            text: "Simulate Voltage"
+            size_hint: .9, None
+            height: "60dp"
+            pos_hint: {"center_x": .5}
+            bold: True
+            on_release:
+                root.dismiss()
+                app.root.ids.simulation_canvas.simulate_bus(name_input.text.upper(), voltage_input.text.upper())
+
+        Button:
+            text: "Restart"
+            size_hint: .5, None
+            height: "30dp"
+            pos_hint: {"center_x": .5}
+            on_release:
+                root.dismiss()
+                app.root.ids.simulation_canvas.refresh()
+
+<Message@ModalView>:
+    overlay_color: (0, 0, 0, .05)
+    background: "white"
+    size_hint: None, None
+    size: "400dp", "80dp"
+    MLabel:
+        id: msg
+        text: "Bus name not found"
+        bold: True
+        color: "red"
+        font_size: sp(16)
+    

@@ -13,9 +13,8 @@ class ComBase:
         else:
             self.host = host
         self.port = port
-        while not self._connect_to_network():
-           print(name, " failed to connect!!!")
-           sleep(5)
+        if not self._connect_to_network():
+            raise("Failed to connect!")
     
     def _connect_to_network(self) -> bool:
         try:
@@ -62,7 +61,7 @@ class ComBase:
     def _attr_broadcast(self, attr, interval):
         while True:
             if hasattr(self, "_callback") and callable(self._callback):
-                self._callback(getattr(self, attr))
+                self._callback(getattr(self, "name"), getattr(self, attr))
             try:
                 self.broadcast_message(str(getattr(self, attr)))
             except:

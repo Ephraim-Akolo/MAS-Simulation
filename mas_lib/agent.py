@@ -194,23 +194,25 @@ class AgentSource(AgentPower):
 
     id = None
 
-    def __init__(self, name: str, host: str = "", port: int = 10001, voltage: float = LINE_VOLTAGE, non_blocking_callback=None) -> None:
+    def __init__(self, name: str, host: str = "", port: int = 10001, voltage: float = LINE_VOLTAGE, non_blocking_callback=None, broadcast_channel=None) -> None:
         id = self.its_SOURCE(name)
         if not id:
             raise(Exception("Not a valid Source Name!"))
         self.id = id
         self._callback = non_blocking_callback
+        self.broadcast_channel = broadcast_channel
         super().__init__(name, host, port, voltage)
         # if not self.schedule_attr_broadcast("voltage", refresh_time):
         #     raise(Exception("Error Scheduling broadcast"))
     
     def broadcast(self, name:str, state:str): # Override function
-        if state.isnumeric() and float(state) == 0:
-            print(name, state)
-        elif name[:2] == "DG" or (name[:2] == "CB" and state== "broken") :
-            print(name, state)
+        # if state.isnumeric() and float(state) == 0:
+        #     print(name, state)
+        # elif name[:2] == "DG" or (name[:2] == "CB" and state== "broken") :
+        #     print(name, state)
+        if self.broadcast_channel:
+            self.broadcast_channel(name, state)
         
-    
     def reset_network(self):
         for _ in range(5):
             self.broadcast_message(str("r"))
