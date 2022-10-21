@@ -26,7 +26,11 @@ def server_program():
 def _connect_to_network(conn, address):
     print("Connection from: " + str(address[0]))
     while True:
-        data = conn.recv(32).decode()
+        try:
+            data = None
+            data = conn.recv(32).decode()
+        except:
+            pass
         if not data:
             if len(CONNECTIONS[address[0]]) <= 1:
                 CONNECTIONS.pop(address[0])

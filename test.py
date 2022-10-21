@@ -44,6 +44,6 @@ for i in ((1, 3), (3, 1), (1, 4), (9, 7), (8 , 10), (4, 9), (2, 3, 8)):
     for j in i:
         print("NOW BREAKING!!!!!!!!!!!!!!!!!!!!!!!!!", j)
         b[j-1].broken = True
-        b[j-1].voltage = 0
+        b[j-1].voltage = 40
         input()
     source.reset_network()

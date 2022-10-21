@@ -141,7 +141,7 @@
         
     size_hint: None, None
     size: "65dp", "25dp"
-    text: "{}: {}KV".format(self.name, self.agent_attr)
+    text: "{}: {}".format(self.name, "live" if self.state else "dead")
     bold: True
 
 <PopPage@ModalView>:

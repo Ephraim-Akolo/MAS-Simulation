@@ -2,7 +2,7 @@ from mas_lib.communications import ComBase
 from parseconfig import MyParser, LINE_VOLTAGE, MIN_VOLATAGE, state_broken_, state_live_
 from time import sleep
 
-refresh_time = 1
+refresh_time = .1
 
 class AgentCB(ComBase):
 
@@ -56,7 +56,7 @@ class AgentCB(ComBase):
     def _affected_action(self, name, state):
         voltage = float(state)
         if voltage < self.buses_volatage_rule['min'] or voltage > self.buses_volatage_rule["max"]:
-            if self._supply_is_DG > 3:
+            if self._supply_is_DG > (4 if refresh_time < .5 else 3): # used to control second breakage. system normally settles after 4 iteration.
                 self.state = 0
                 self._supply_is_DG = 1000
                 return
@@ -158,6 +158,9 @@ class AgentB(AgentPower):
                 self.voltage = LINE_VOLTAGE
             else:
                 self.voltage = 0
+        else:
+            if self.voltage < MIN_VOLATAGE or self.voltage > LINE_VOLTAGE:
+                self.voltage = 0
     
     def _no_breakage_from_source(self) -> bool:
         n = self._no_breakage_from_line(True)
@@ -182,6 +185,8 @@ class AgentB(AgentPower):
                 return False
         return True
     
+    def _make_zero(self):
+        self.voltage = 0
     
     def _reset(self):
         self.broken = False
@@ -206,12 +211,13 @@ class AgentSource(AgentPower):
         #     raise(Exception("Error Scheduling broadcast"))
     
     def broadcast(self, name:str, state:str): # Override function
-        # if state.isnumeric() and float(state) == 0:
-        #     print(name, state)
-        # elif name[:2] == "DG" or (name[:2] == "CB" and state== "broken") :
-        #     print(name, state)
         if self.broadcast_channel:
             self.broadcast_channel(name, state)
+            return
+        if state.isnumeric() and float(state) == 0:
+            print(name, state)
+        elif name[:2] == "DG" or (name[:2] == "CB" and state== "broken") :
+            print(name, state)
         
     def reset_network(self):
         for _ in range(5):
