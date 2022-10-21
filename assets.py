@@ -74,7 +74,7 @@ class CBWidget(Widget):
         elif value == "broken":
             self.state = False
         else:
-            raise(f"{self} got invalid cb state!")
+            raise(Exception(f"{self} got invalid cb state!"))
 
 
 class BusWidget(MLabel):

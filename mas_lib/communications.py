@@ -14,7 +14,7 @@ class ComBase:
             self.host = host
         self.port = port
         if not self._connect_to_network():
-            raise("Failed to connect!")
+            raise(Exception("Failed to connect!"))
     
     def _connect_to_network(self) -> bool:
         try:
@@ -54,19 +54,14 @@ class ComBase:
         try:
             Thread(name=attr, target=self._attr_broadcast, args=(attr, interval), daemon=True).start()
         except:
-            print(f"Failed to schedule {attr} broadcast!")
-            return False
+            raise(Exception("Failed to schedule {attr} broadcast!"))
         return True
     
     def _attr_broadcast(self, attr, interval):
         while True:
-            if hasattr(self, "_callback") and callable(self._callback):
+            if callable(self._callback):
                 self._callback(getattr(self, "name"), getattr(self, attr))
-            try:
-                self.broadcast_message(str(getattr(self, attr)))
-            except:
-                while not self._connect_to_network():
-                    sleep(5)
+            self.broadcast_message(str(getattr(self, attr)))
             sleep(interval)
     
     @staticmethod

@@ -117,13 +117,15 @@ class SimulationArea(RelativeLayout):
         Thread(name="simulation canvas refresh", target= self.source.reset_network, daemon=True).start()
     
     def comm_channel(self, name, state):
-        data = self.app.root.ids.sexy_console.data
-        Clock.schedule_once(lambda x: self._comm_channel(name, state, data))
+        console = self.app.root.ids.sexy_console
+        Clock.schedule_once(lambda x: self._comm_channel(name, state, console))
     
-    def _comm_channel(self, name, state, data):
-        if len(data) > 100:
-            data.pop(0)
-        data.append({"text": f"{name}: {state}"})
+    def _comm_channel(self, name, state, console):
+        d = console.data[:]
+        if len(d) > 100:
+            d.pop(0)
+        d.append({"text": f"{name}: {state}"})
+        console.data = d
         
 
 class MASManager(ScreenManager):
