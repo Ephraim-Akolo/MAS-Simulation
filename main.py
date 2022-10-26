@@ -24,24 +24,13 @@ def animation_frame(i):
         lax5.set_xdata(t)
         lax6.set_xdata(t)
 
-def plot_graph_(*args):
-        x = 100
-        resolution = 600
-        v = 1
-        v_padding = 1.2
-        c = 250
-        c_padding = 1.3
+def plot_graph_(name, x = 100, resolution = 600, v = 1, v_padding = 1.2, c = 250, c_padding = 1.3, fault_v1 = 0.7, fault_c1 = 300, fault_v2 = 0.7, fault_c2 = 300, fault_v3 = 0.7, fault_c3 = 300, animation=True, fault_bar=False):
+
         t_start = int(0.2 * resolution)
         t_end = int(0.4 * resolution)
-        fault_v1 = 0.7
-        fault_c1 = 300
-        fault_v2 = 0.7
-        fault_c2 = 300
-        fault_v3 = 0.7
-        fault_c3 = 300
         
         time = np.linspace(0, x, resolution)
-        fig, (ax1, ax2) = plt.subplots(figsize=(10, 6), nrows=2)
+        fig, (ax1, ax2) = plt.subplots(nrows=2)
 
         global lax1, lax2, lax3, lax4, lax5, lax6, sax1, sax2, sax3, sax4, sax5, sax6, stime
         sax1 = np.sin(time)*c 
@@ -56,11 +45,12 @@ def plot_graph_(*args):
         sax3[t_start:t_end] *= fault_c3/c
         lax3, *_ = ax1.plot(time[:1]/100, sax3[:1], label='phase 3')
         # ax1.axhline(y=0, color='k')
-        ax1.axvline(x=0.198, color="red")
-        ax1.axvline(x=0.402, color="red")
+        if fault_bar:
+            ax1.axvline(x=0.198, color="red")
+            ax1.axvline(x=0.402, color="red")
         ax1.legend(loc = 'lower right')
         ax1.set_ylim([-c*c_padding, c*c_padding])
-        ax1.set_xlim([0, .6])
+        ax1.set_xlim([0, 1])
         ax1.set_ylabel("Current (A)")
 
         sax4 = np.sin(time)*v
@@ -75,17 +65,22 @@ def plot_graph_(*args):
         sax6[t_start:t_end] *= fault_v3/v
         lax6, *_ = ax2.plot(time[:1]/100, sax6[:1], label='phase 3')
         # ax2.axhline(y=0, color='k')
-        ax2.axvline(x=0.198, color="red")
-        ax2.axvline(x=0.402, color="red")
+        if fault_bar:
+            ax2.axvline(x=0.198, color="red")
+            ax2.axvline(x=0.402, color="red")
         stime = time/x
         ax2.legend(loc = 'lower right')
         ax2.set_ylim([-v*v_padding, v*v_padding])
-        ax2.set_xlim([0, .6])
+        ax2.set_xlim([0, 1])
         ax2.set_ylabel("Voltage (pu)")
 
         plt.xlabel("time (s)")
+        plt.suptitle(f"Bus {name} Fault Analysis")
         fig.canvas.manager.set_window_title("Plottings")
-        anim = FuncAnimation(fig, func = animation_frame, frames=np.arange(0, int(resolution*0.7), 4), interval=100, repeat=False)
+        if animation:
+            anim = FuncAnimation(fig, func = animation_frame, frames=np.arange(0, resolution, 4), interval=100, repeat=False)
+        else:
+            animation_frame(resolution)
         plt.show()
 
 if __name__ == "__main__":
@@ -234,10 +229,25 @@ if __name__ == "__main__":
             Builder.load_file("./kv_files/assets.kv")
             return Builder.load_file("./kv_files/mas.kv")
         
-        def plot_graph(self, *args):
+        def plot_graph(self, bus_name, normal_current, fault_current, phase_number, animation, fault_bar):
             if self.plotter and self.plotter.is_alive():
                 self.plotter.kill()
-            self.plotter = Process(name="plottings", target=plot_graph_, args=args)
+            t = 2
+            if not MyParser.its_B(bus_name):
+                m = Factory.Message()
+                m.ids.msg.text = "Name entered is not a valid bus name!"
+                m.open()
+                Clock.schedule_once(lambda x: m.dismiss(), t)
+                return
+            self.plotter = Process(name="plottings", target=plot_graph_, kwargs={
+                                                                                "name": bus_name,
+                                                                                "c": float(normal_current),
+                                                                                "fault_c1": float(fault_current),
+                                                                                "fault_c2": float(fault_current) if phase_number in ("2", "3") else float(normal_current),
+                                                                                "fault_c3": float(fault_current) if phase_number == '3' else float(normal_current),
+                                                                                "animation": animation,
+                                                                                "fault_bar": fault_bar
+                                                                                })
             self.plotter.start()
                 
         def on_stop(self):

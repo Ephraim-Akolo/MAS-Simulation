@@ -99,4 +99,11 @@ class TextField(BoxLayout):
     text_obj = ObjectProperty(None)
     input_obj = ObjectProperty(None)
     text = ObjectProperty(None)
+    cs = {"b1": ("1204", "1300"), "b10": ("241", "300"), "b6": ("482", "600")}
+
+
+class CheckBoxField(BoxLayout):
+    text_obj = ObjectProperty(None)
+    checkbox_obj = ObjectProperty(None)
+    active = ObjectProperty(None)
     
