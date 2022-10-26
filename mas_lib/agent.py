@@ -282,7 +282,8 @@ class AgentDG(AgentPower):
             if name in self._cb_around_b and state == AgentCB.switch[0] and self.voltage == 0: # AgentCB should not be here and class should be independent of other agents.
                 # line is broken
                 N = 2
-                self._affected_action_1(name, 0)
+                if not self._no_breakage_from_line():
+                    self._affected_action_1(name, 0)
             elif dg and dg < self.id and float(state) == float(LINE_VOLTAGE):
                 # DG behind is on, means breakage and must therefore be on too
                 N = 3

@@ -1,5 +1,6 @@
 
 #:import Factory kivy.factory.Factory
+#:import Clock kivy.clock.Clock
 
 #:set background_color (.95, .95, .95, 1)
 #:set console_background_color (0, 0, 0, 1)
@@ -179,6 +180,7 @@
                     height: "30dp"
                 MInput:
                     id: voltage_input
+                    input_filter: "float"
         BoxLayout:
             orientation:
         Button:
@@ -223,6 +225,20 @@
         size: self.texture_size
     MInput:
         id: input
+        input_filter: "float"
+
+<CheckBoxField>:
+    text_obj: text
+    checkbox_obj: chckbx
+    active: chckbx.active
+    orientation: "horizontal"
+    MLabel:
+        id: text
+        # size_hint: None, None
+        # size: self.texture_size
+    CheckBox:
+        id: chckbx
+        color: 0, 0, 0, 1
     
 
 <PlotGragh@ModalView>:
@@ -236,22 +252,49 @@
         padding: "50dp", "20dp"
         spacing: "20dp"
         MLabel:
-            text: "Power Graph"
+            text: "Plot Graph"
         TextField:
+            id: bus_name
             on_kv_post:
-                self.text_obj.text = "Fault Voltage (V)"
+                self.text_obj.text = "Bus Name"
+                self.input_obj.input_filter = None
+            on_text:
+                normal_current.input_obj.text = self.cs[self.text.lower()][0] if self.text.lower() in self.cs.keys() else normal_current.text
+                fault_current.input_obj.text = self.cs[self.text.lower()][1] if self.text.lower() in self.cs.keys() else fault_current.text
         TextField:
+            id: normal_current
             on_kv_post:
-                self.text_obj.text = "Fault Time (s)"
+                self.text_obj.text = "Normal Current (A)"
+                self.input_obj.text = bus_name.cs['b1'][0]
         TextField:
+            id: fault_current
             on_kv_post:
-                self.text_obj.text = "Agents Communication Time (s)"
+                self.text_obj.text = "Fault Current (A)"
+                self.input_obj.text = bus_name.cs['b1'][1]
         TextField:
+            id: phase_number
             on_kv_post:
-                self.text_obj.text = "DG start time (s)"
+                self.text_obj.text = "Faulty Phase Number (1, 2 or 3)"
+                self.input_obj.input_filter = lambda x, y: x if len(self.text) == 0 and x.isdigit() and int(x) in (1, 2, 3) else ""
+                self.input_obj.text = "3"
+        CheckBoxField:
+            id: animation_chckbx
+            size_hint: .5, 1
+            on_kv_post:
+                self.text_obj.text = "Animation"
+                self.checkbox_obj.active = True
+        CheckBoxField:
+            id: faultbar_chckbx
+            size_hint: .5, 1
+            on_kv_post:
+                self.text_obj.text = "Show Bar"
+                self.checkbox_obj.active = False
         Button:
-            text: "Generate Graph"
+            text: "Generate Plot"
             on_release:
-                app.plot_graph()
+                app.plot_graph(bus_name.text.upper(), normal_current.text, fault_current.text, phase_number.text, animation_chckbx.active, faultbar_chckbx.active)
+                app.root.ids.simulation_canvas.refresh()
+                Clock.schedule_once(lambda x: app.root.ids.simulation_canvas.simulate_bus(bus_name.text.upper(), "0"), 1.5)
+                root.dismiss()
 
     
