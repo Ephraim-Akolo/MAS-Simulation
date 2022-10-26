@@ -28,6 +28,10 @@ def plot_graph_(name, x = 100, resolution = 600, v = 1, v_padding = 1.2, c = 250
 
         t_start = int(0.2 * resolution)
         t_end = int(0.4 * resolution)
+
+        fault_v1 = 0 if fault_c1 <= 1 else fault_v1
+        fault_v2 = 0 if fault_c2 <= 1 else fault_v2
+        fault_v3 = 0 if fault_c3 <= 1 else fault_v3
         
         time = np.linspace(0, x, resolution)
         fig, (ax1, ax2) = plt.subplots(nrows=2)
