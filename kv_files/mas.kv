@@ -69,6 +69,14 @@ MASManager:
                 # DashBoard:
                 BreakButton:
                     text: "Simulate"
+                    bold: True
+                Button:
+                    text: "Plot"
+                    size_hint_y: None
+                    height: "40dp"
+                    on_release:
+                        Factory.PlotGragh().open()
+
             
 
 <SimulationArea>:
