@@ -14,7 +14,6 @@
 #:set b_color_active green_color
 #:set _Qpadding 1
 
-
 <MLabel>:
     color: black_color
     font_size: "12sp"
@@ -96,7 +95,6 @@
         Line:
             points: (self.line_a, self.line_b, self.line_c, self.line_d)
 
-
 <LineCap@Widget>:
     canvas:
         Color:
@@ -105,7 +103,6 @@
             points: (self.x, self.y, self.x+self.width, self.y+self.height//2, self.x, self.y+self.height)
     size_hint: None, None
     size: "6dp", "10dp"
-
 
 <CBWidget>:
     canvas:
@@ -214,4 +211,47 @@
         bold: True
         color: "red"
         font_size: sp(16)
+
+<TextField>:
+    text_obj: text
+    input_obj: input
+    text: input.text
+    orientation: "vertical"
+    MLabel:
+        id: text
+        size_hint: None, None
+        size: self.texture_size
+    MInput:
+        id: input
+    
+
+<PlotGragh@ModalView>:
+    overlay_color: (0, 0, 0, .05)
+    background: "white"
+    size_hint: .5, .8
+    size_hint_max_x: "350dp"
+    size_hint_max_y: "650dp"
+    BoxLayout:
+        orientation: "vertical"
+        padding: "50dp", "20dp"
+        spacing: "20dp"
+        MLabel:
+            text: "Power Graph"
+        TextField:
+            on_kv_post:
+                self.text_obj.text = "Fault Voltage (V)"
+        TextField:
+            on_kv_post:
+                self.text_obj.text = "Fault Time (s)"
+        TextField:
+            on_kv_post:
+                self.text_obj.text = "Agents Communication Time (s)"
+        TextField:
+            on_kv_post:
+                self.text_obj.text = "DG start time (s)"
+        Button:
+            text: "Generate Graph"
+            on_release:
+                app.plot_graph()
+
     

@@ -2,8 +2,9 @@
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.recycleview import RecycleView
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.widget import Widget
-from kivy.properties import NumericProperty, StringProperty, BooleanProperty
+from kivy.properties import NumericProperty, StringProperty, BooleanProperty, ObjectProperty
 from parseconfig import LINE_VOLTAGE, MIN_VOLATAGE
 
 class MInput(TextInput):
@@ -92,3 +93,10 @@ class BusWidget(MLabel):
                 self.parent.broken.remove(self.name)
             except:
                 pass
+
+
+class TextField(BoxLayout):
+    text_obj = ObjectProperty(None)
+    input_obj = ObjectProperty(None)
+    text = ObjectProperty(None)
+    

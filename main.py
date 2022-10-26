@@ -1,3 +1,10 @@
+import matplotlib
+matplotlib.use('TkAgg')
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+from multiprocessing import Process
+
 from os import name as _OS_Name_
 if _OS_Name_ == 'nt':
     from os import environ
@@ -11,7 +18,6 @@ from kivy.lang import Builder
 from kivy.clock import Clock
 from kivy.factory import Factory
 from threading import Thread
-from kivy.properties import NumericProperty, BooleanProperty
 from assets import *
 from mas_lib.agent import AgentCB, AgentB, AgentDG, AgentSource
 from parseconfig import MyParser
@@ -139,10 +145,99 @@ class MASManager(ScreenManager):
 
 
 class MASApp(App):
-
+    plotter = None
     def build(self):
         Builder.load_file("./kv_files/assets.kv")
         return Builder.load_file("./kv_files/mas.kv")
+    
+    def plot_graph(self, *args):
+        if self.plotter and self.plotter.is_alive():
+            self.plotter.kill()
+        self.plotter = Process(name="plottings", target=self._plot_graph, args=args)
+        self.plotter.start()
+        
+    def _plot_graph(self, *args):
+        x = 100
+        resolution = 600
+        v = 1
+        v_padding = 1.2
+        c = 250
+        c_padding = 1.3
+        t_start = int(0.2 * resolution)
+        t_end = int(0.4 * resolution)
+        fault_v1 = 0.7
+        fault_c1 = 300
+        fault_v2 = 0.7
+        fault_c2 = 300
+        fault_v3 = 0.7
+        fault_c3 = 300
+        
+        time = np.linspace(0, x, resolution)
+        fig, (ax1, ax2) = plt.subplots(figsize=(10, 6), nrows=2)
+
+        self.sax1 = np.sin(time)*c 
+        self.sax1[t_start:t_end] *= fault_c1/c
+        self.lax1, *_ = ax1.plot(time[:1]/100, self.sax1[:1], label='phase 1')
+
+        self.sax2 = np.sin(time - 2*(np.pi)/3)*c 
+        self.sax2[t_start:t_end] *= fault_c2/c
+        self.lax2, *_ = ax1.plot(time[:1]/100, self.sax2[:1], label='phase 2')
+
+        self.sax3 = np.sin(time + 2*(np.pi)/3)*c
+        self.sax3[t_start:t_end] *= fault_c3/c
+        self.lax3, *_ = ax1.plot(time[:1]/100, self.sax3[:1], label='phase 3')
+        # ax1.axhline(y=0, color='k')
+        ax1.axvline(x=0.198, color="red")
+        ax1.axvline(x=0.402, color="red")
+        ax1.legend(loc = 'lower right')
+        ax1.set_ylim([-c*c_padding, c*c_padding])
+        ax1.set_xlim([0, .6])
+        ax1.set_ylabel("Current (A)")
+
+        self.sax4 = np.sin(time)*v
+        self.sax4[t_start:t_end] *= fault_v1/v
+        self.lax4, *_ = ax2.plot(time[:1]/100, self.sax4[:1], label='phase 1')
+
+        self.sax5 = np.sin(time - 2*(np.pi)/3)*v
+        self.sax5[t_start:t_end] *= fault_v2/v
+        self.lax5, *_ = ax2.plot(time[:1]/100, self.sax5[:1], label='phase 2')
+
+        self.sax6 = np.sin(time + 2*(np.pi)/3)*v 
+        self.sax6[t_start:t_end] *= fault_v3/v
+        self.lax6, *_ = ax2.plot(time[:1]/100, self.sax6[:1], label='phase 3')
+        # ax2.axhline(y=0, color='k')
+        ax2.axvline(x=0.198, color="red")
+        ax2.axvline(x=0.402, color="red")
+        self.stime = time/x
+        ax2.legend(loc = 'lower right')
+        ax2.set_ylim([-v*v_padding, v*v_padding])
+        ax2.set_xlim([0, .6])
+        ax2.set_ylabel("Voltage (pu)")
+
+        plt.xlabel("time (s)")
+        fig.canvas.manager.set_window_title("Plottings")
+        anim = FuncAnimation(fig, func=self.animation_frame, frames=np.arange(0, resolution, 4), interval=10, repeat=False)
+        plt.show()
+    
+    def animation_frame(self, i):
+        self.lax1.set_ydata(self.sax1[:i])
+        self.lax2.set_ydata(self.sax2[:i])
+        self.lax3.set_ydata(self.sax3[:i])
+        self.lax4.set_ydata(self.sax4[:i])
+        self.lax5.set_ydata(self.sax5[:i])
+        self.lax6.set_ydata(self.sax6[:i])
+        t = self.stime[:i]
+        self.lax1.set_xdata(t)
+        self.lax2.set_xdata(t)
+        self.lax3.set_xdata(t)
+        self.lax4.set_xdata(t)
+        self.lax5.set_xdata(t)
+        self.lax6.set_xdata(t)
+            
+    def on_stop(self):
+        if self.plotter:
+            self.plotter.kill()
+        return super().on_stop()
 
 if __name__ == "__main__":
     MASApp().run()
