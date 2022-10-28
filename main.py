@@ -24,14 +24,18 @@ def animation_frame(i):
         lax5.set_xdata(t)
         lax6.set_xdata(t)
 
-def plot_graph_(name, x = 100, resolution = 600, v = 1, v_padding = 1.2, c = 250, c_padding = 1.3, fault_v1 = 0.7, fault_c1 = 300, fault_v2 = 0.7, fault_c2 = 300, fault_v3 = 0.7, fault_c3 = 300, animation=True, fault_bar=False):
+def plot_graph_(name, x = 100, resolution = 600, v = 1.05, v_padding = 1.2, c = 250, c_padding = 1.3, fault_v1 = 0.7, fault_c1 = 300, fault_v2 = 0.7, fault_c2 = 300, fault_v3 = 0.7, fault_c3 = 300, animation=True, fault_bar=False):
 
         t_start = int(0.2 * resolution)
         t_end = int(0.4 * resolution)
 
-        fault_v1 = 0 if fault_c1 <= 1 else fault_v1
-        fault_v2 = 0 if fault_c2 <= 1 else fault_v2
-        fault_v3 = 0 if fault_c3 <= 1 else fault_v3
+        fault_v1 = v if c == fault_c1 else fault_v1
+        fault_v2 = v if c == fault_c2 else fault_v2
+        fault_v3 = v if c == fault_c3 else fault_v3
+        
+        fault_v1 = 0 if fault_c1 < 1 else fault_v1
+        fault_v2 = 0 if fault_c2 < 1 else fault_v2
+        fault_v3 = 0 if fault_c3 < 1 else fault_v3
         
         time = np.linspace(0, x, resolution)
         fig, (ax1, ax2) = plt.subplots(nrows=2)
