@@ -28,6 +28,9 @@ def plot_graph_(name, x = 100, resolution = 600, v = 1.05, v_padding = 1.2, c = 
 
         t_start = int(0.2 * resolution)
         t_end = int(0.4 * resolution)
+        cy_lim = c//2
+        cy_lim = [-c, -cy_lim, 0, cy_lim, c]
+        vy_lim = [-v, -fault_v1, 0, fault_v1, v]
 
         fault_v1 = v if c == fault_c1 else fault_v1
         fault_v2 = v if c == fault_c2 else fault_v2
@@ -60,6 +63,7 @@ def plot_graph_(name, x = 100, resolution = 600, v = 1.05, v_padding = 1.2, c = 
         ax1.set_ylim([-c*c_padding, c*c_padding])
         ax1.set_xlim([0, 1])
         ax1.set_ylabel("Current (A)")
+        ax1.set_yticks(cy_lim)
 
         sax4 = np.sin(time)*v
         sax4[t_start:t_end] *= fault_v1/v
@@ -81,6 +85,7 @@ def plot_graph_(name, x = 100, resolution = 600, v = 1.05, v_padding = 1.2, c = 
         ax2.set_ylim([-v*v_padding, v*v_padding])
         ax2.set_xlim([0, 1])
         ax2.set_ylabel("Voltage (pu)")
+        ax2.set_yticks(vy_lim)
 
         plt.xlabel("time (s)")
         plt.suptitle(f"Bus {name} Fault Analysis")
