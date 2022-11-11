@@ -295,6 +295,8 @@
                 app.plot_graph(bus_name.text.upper(), normal_current.text, fault_current.text, phase_number.text, animation_chckbx.active, faultbar_chckbx.active)
                 app.root.ids.simulation_canvas.refresh()
                 Clock.schedule_once(lambda x: app.root.ids.simulation_canvas.simulate_bus(bus_name.text.upper(), "0"), 1.5)
-                root.dismiss()
+                self.text = "Generating plot\nplease wait..."
+                self.bold = True
+                Clock.schedule_once(lambda x: root.dismiss(), 5)
 
     
