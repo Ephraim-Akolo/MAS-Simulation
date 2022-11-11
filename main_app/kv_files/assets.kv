@@ -282,7 +282,7 @@
             size_hint: .5, 1
             on_kv_post:
                 self.text_obj.text = "Animation"
-                self.checkbox_obj.active = True
+                self.checkbox_obj.active = False
         CheckBoxField:
             id: faultbar_chckbx
             size_hint: .5, 1
@@ -292,11 +292,11 @@
         Button:
             text: "Generate Plot"
             on_release:
-                app.plot_graph(bus_name.text.upper(), normal_current.text, fault_current.text, phase_number.text, animation_chckbx.active, faultbar_chckbx.active)
+                n = app.plot_graph(bus_name.text.upper(), normal_current.text, fault_current.text, phase_number.text, animation_chckbx.active, faultbar_chckbx.active)
                 app.root.ids.simulation_canvas.refresh()
                 Clock.schedule_once(lambda x: app.root.ids.simulation_canvas.simulate_bus(bus_name.text.upper(), "0"), 1.5)
                 self.text = "Generating plot\nplease wait..."
                 self.bold = True
-                Clock.schedule_once(lambda x: root.dismiss(), 5)
+                Clock.schedule_once(lambda x: root.dismiss(), 5 if n else 0 )
 
     

@@ -164,6 +164,7 @@ class MASApp(App):
         for key, val in kwargs.items():
             cmd = f"{cmd} {key}={val}"
         subprocess.Popen(cmd, shell=True)
+        return True
             
     def on_stop(self):
         return super().on_stop()
