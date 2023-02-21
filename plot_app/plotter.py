@@ -46,15 +46,15 @@ def plot_graph(name, x = 100, resolution = 600, v = 1.05, v_padding = 1.2, c = 2
     global lax1, lax2, lax3, lax4, lax5, lax6, sax1, sax2, sax3, sax4, sax5, sax6, stime
     sax1 = np.sin(time)*c 
     sax1[t_start:t_end] *= fault_c1/c
-    lax1, *_ = ax1.plot(time[:1]/100,sax1[:1], label='phase 1')
+    lax1, *_ = ax1.plot(time[:1]/100,sax1[:1], label='phase A')
 
     sax2 = np.sin(time - 2*(np.pi)/3)*c 
     sax2[t_start:t_end] *= fault_c2/c
-    lax2, *_ = ax1.plot(time[:1]/100, sax2[:1], label='phase 2')
+    lax2, *_ = ax1.plot(time[:1]/100, sax2[:1], label='phase B')
 
     sax3 = np.sin(time + 2*(np.pi)/3)*c
     sax3[t_start:t_end] *= fault_c3/c
-    lax3, *_ = ax1.plot(time[:1]/100, sax3[:1], label='phase 3')
+    lax3, *_ = ax1.plot(time[:1]/100, sax3[:1], label='phase C')
     # ax1.axhline(y=0, color='k')
     if fault_bar:
         ax1.axvline(x=0.198, color="red")
@@ -67,15 +67,15 @@ def plot_graph(name, x = 100, resolution = 600, v = 1.05, v_padding = 1.2, c = 2
 
     sax4 = np.sin(time)*v
     sax4[t_start:t_end] *= fault_v1/v
-    lax4, *_ = ax2.plot(time[:1]/100, sax4[:1], label='phase 1')
+    lax4, *_ = ax2.plot(time[:1]/100, sax4[:1], label='phase A')
 
     sax5 = np.sin(time - 2*(np.pi)/3)*v
     sax5[t_start:t_end] *= fault_v2/v
-    lax5, *_ = ax2.plot(time[:1]/100, sax5[:1], label='phase 2')
+    lax5, *_ = ax2.plot(time[:1]/100, sax5[:1], label='phase B')
 
     sax6 = np.sin(time + 2*(np.pi)/3)*v 
     sax6[t_start:t_end] *= fault_v3/v
-    lax6, *_ = ax2.plot(time[:1]/100, sax6[:1], label='phase 3')
+    lax6, *_ = ax2.plot(time[:1]/100, sax6[:1], label='phase C')
     # ax2.axhline(y=0, color='k')
     if fault_bar:
         ax2.axvline(x=0.198, color="red")
